@@ -1,8 +1,10 @@
 import { Controller, Get, Post, Patch, Param, Delete } from '@nestjs/common';
+import { ApiTags } from '@nestjs/swagger';
 import { ParsePositiveIntPipe } from 'src/common/pipes/parse-positive-int.pipe';
 
 import { PlansService } from './plans.service';
 
+@ApiTags('PLAN')
 @Controller('plans')
 export class PlansController {
   constructor(private readonly plansService: PlansService) {}
