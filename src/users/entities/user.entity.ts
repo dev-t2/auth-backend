@@ -5,50 +5,44 @@ import {
   IsDate,
   IsEmail,
   IsEnum,
-  IsNotEmpty,
+  IsMobilePhone,
   IsPositive,
-  IsString,
+  Matches,
 } from 'class-validator';
 
 export class User implements UserModel {
   @ApiProperty({ required: true, description: '아이디' })
   @IsPositive()
-  @IsNotEmpty()
   id: number;
 
   @ApiProperty({ required: true, description: '이메일' })
   @IsEmail()
-  @IsNotEmpty()
   email: string;
 
   @ApiProperty({ required: true, description: '닉네임' })
-  @IsString()
-  @IsNotEmpty()
+  @Matches(/^[가-힣a-zA-Z0-9]{2,10}$/, { message: 'nickname must be a nickname' })
   nickname: string;
 
   @ApiProperty({ required: true, description: '비밀번호' })
-  @IsString()
-  @IsNotEmpty()
+  @Matches(/^(?=.*[A-Za-z])(?=.*\d)(?=.*[`~!@#$%^&*()_=+])[A-Za-z\d`~!@#$%^&*()_=+]{8,16}$/, {
+    message: 'password must be a password',
+  })
   password: string;
 
   @ApiProperty({ required: true, description: '전화번호' })
-  @IsString()
-  @IsNotEmpty()
+  @IsMobilePhone('ko-KR')
   phoneNumber: string;
 
   @ApiProperty({ description: '서비스 이용약관' })
   @IsBoolean()
-  @IsNotEmpty()
   isServiceTerms: boolean;
 
   @ApiProperty({ description: '개인정보 이용약관' })
   @IsBoolean()
-  @IsNotEmpty()
   isPrivacyTerms: boolean;
 
   @ApiProperty({ description: '마케팅 이용약관' })
   @IsBoolean()
-  @IsNotEmpty()
   isMarketingTerms: boolean;
 
   @ApiProperty({ default: 'USER', description: '권한' })
