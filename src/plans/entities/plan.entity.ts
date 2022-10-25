@@ -9,7 +9,7 @@ export class Plan implements PlanModel {
 
   @ApiProperty({ required: true, description: '유저 아이디' })
   @IsPositive()
-  userId: number;
+  userId: number | null;
 
   @ApiProperty({ description: '생성된 날짜' })
   @IsDate()
