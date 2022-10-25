@@ -1,5 +1,4 @@
-import { Controller, Get, Post, Patch, Param, Delete } from '@nestjs/common';
-import { ParsePositiveIntPipe } from 'src/common/pipes/parse-positive-int.pipe';
+import { Controller, Get, Param } from '@nestjs/common';
 
 import { UsersService } from './users.service';
 
@@ -7,28 +6,8 @@ import { UsersService } from './users.service';
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @Post()
-  async create() {
-    return await this.usersService.create();
-  }
-
-  @Get()
-  findAll() {
-    return this.usersService.findAll();
-  }
-
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.usersService.findOne(+id);
-  }
-
-  @Patch(':id')
-  update(@Param('id') id: string) {
-    return this.usersService.update(+id);
-  }
-
-  @Delete(':id')
-  async delete(@Param('id', ParsePositiveIntPipe) id: number) {
-    return await this.usersService.delete(id);
+  @Get('confirm/nickname/:nickname')
+  async confirmNickname(@Param('nickname') nickname: string) {
+    return await this.usersService.confirmNickname(nickname);
   }
 }

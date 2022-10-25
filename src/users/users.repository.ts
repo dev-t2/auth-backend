@@ -6,11 +6,10 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class UsersRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async create() {
-    return await this.prismaService.user.create({ data: {} });
-  }
-
-  async delete(id: number) {
-    return await this.prismaService.user.delete({ where: { id } });
+  async findUserByNickname(nickname: string) {
+    return await this.prismaService.user.findUnique({
+      where: { nickname },
+      select: { id: true },
+    });
   }
 }
