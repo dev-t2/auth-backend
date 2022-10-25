@@ -1,15 +1,15 @@
-import { Role, User as UserModel } from '@prisma/client';
+import { Plan as PlanModel } from '@prisma/client';
 import { ApiProperty } from '@nestjs/swagger';
-import { IsDate, IsEnum, IsPositive } from 'class-validator';
+import { IsDate, IsPositive } from 'class-validator';
 
-export class User implements UserModel {
+export class Plan implements PlanModel {
   @ApiProperty({ required: true, description: '아이디' })
   @IsPositive()
   id: number;
 
-  @ApiProperty({ description: '권한' })
-  @IsEnum(Role)
-  role: Role;
+  @ApiProperty({ required: true, description: '유저 아이디' })
+  @IsPositive()
+  userId: number;
 
   @ApiProperty({ description: '생성된 날짜' })
   @IsDate()
