@@ -5,7 +5,7 @@ declare namespace NodeJS {
 
     DATABASE_URL: string;
 
-    ADMIN: string;
+    ADMIN_NAME: string;
     ADMIN_PASSWORD: string;
   }
 }

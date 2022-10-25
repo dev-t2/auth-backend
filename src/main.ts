@@ -26,7 +26,7 @@ async function bootstrap() {
     ['/docs', '/docs-json'],
     expressBasicAuth({
       challenge: true,
-      users: { [process.env.ADMIN]: process.env.ADMIN_PASSWORD },
+      users: { [process.env.ADMIN_NAME]: process.env.ADMIN_PASSWORD },
     }),
   );
 
