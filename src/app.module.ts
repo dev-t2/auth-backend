@@ -6,7 +6,6 @@ import { AppController } from './app.controller';
 import { PrismaModule } from './prisma/prisma.module';
 import { UsersModule } from './users/users.module';
 import { HttpLoggerMiddleware } from './common/middlewares/http-logger.middleware';
-import { PlansModule } from './plans/plans.module';
 
 @Module({
   imports: [
@@ -27,7 +26,6 @@ import { PlansModule } from './plans/plans.module';
     }),
     PrismaModule,
     UsersModule,
-    PlansModule,
   ],
   controllers: [AppController],
 })

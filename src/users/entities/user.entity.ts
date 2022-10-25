@@ -13,6 +13,7 @@ import {
 export class User implements UserModel {
   @ApiProperty({ required: true, description: '아이디' })
   @IsPositive()
+  @IsNotEmpty()
   id: number;
 
   @ApiProperty({ required: true, description: '이메일' })
@@ -35,19 +36,19 @@ export class User implements UserModel {
   @IsNotEmpty()
   phoneNumber: string;
 
-  @ApiProperty({ required: true, description: '서비스 이용약관' })
+  @ApiProperty({ default: false, description: '서비스 이용약관' })
   @IsBoolean()
   isServiceTerms: boolean;
 
-  @ApiProperty({ required: true, description: '개인정보 이용약관' })
+  @ApiProperty({ default: false, description: '개인정보 이용약관' })
   @IsBoolean()
   isPrivacyTerms: boolean;
 
-  @ApiProperty({ required: true, description: '마케팅 이용약관' })
+  @ApiProperty({ default: false, description: '마케팅 이용약관' })
   @IsBoolean()
   isMarketingTerms: boolean;
 
-  @ApiProperty({ description: '권한' })
+  @ApiProperty({ default: 'USER', description: '권한' })
   @IsEnum(Role)
   role: Role;
 

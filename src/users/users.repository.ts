@@ -12,4 +12,11 @@ export class UsersRepository {
       select: { id: true },
     });
   }
+
+  async findUserByPhoneNumber(phoneNumber: string) {
+    return await this.prismaService.user.findUnique({
+      where: { phoneNumber },
+      select: { id: true },
+    });
+  }
 }
