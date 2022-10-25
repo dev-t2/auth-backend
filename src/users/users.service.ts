@@ -1,8 +1,7 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 
-import { ConfirmNicknameDto, ConfirmPhoneNumberDto } from './users.dto';
-
 import { UsersRepository } from './users.repository';
+import { ConfirmNicknameDto, ConfirmPhoneNumberDto, SignUpDto } from './users.dto';
 
 @Injectable()
 export class UsersService {
@@ -22,5 +21,9 @@ export class UsersService {
     if (isUser) {
       throw new BadRequestException();
     }
+  }
+
+  async signUp(signUpDto: SignUpDto) {
+    return await this.usersRepository.createUser(signUpDto);
   }
 }

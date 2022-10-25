@@ -21,9 +21,9 @@ model User {
   nickname         String    @unique
   password         String
   phoneNumber      String    @unique
-  isServiceTerms   Boolean   @default(false)
-  isPrivacyTerms   Boolean   @default(false)
-  isMarketingTerms Boolean   @default(false)
+  isServiceTerms   Boolean   
+  isPrivacyTerms   Boolean   
+  isMarketingTerms Boolean   
   role             Role      @default(USER)
   createdAt        DateTime  @default(now())
   updatedAt        DateTime  @updatedAt

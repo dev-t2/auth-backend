@@ -36,16 +36,19 @@ export class User implements UserModel {
   @IsNotEmpty()
   phoneNumber: string;
 
-  @ApiProperty({ default: false, description: '서비스 이용약관' })
+  @ApiProperty({ description: '서비스 이용약관' })
   @IsBoolean()
+  @IsNotEmpty()
   isServiceTerms: boolean;
 
-  @ApiProperty({ default: false, description: '개인정보 이용약관' })
+  @ApiProperty({ description: '개인정보 이용약관' })
   @IsBoolean()
+  @IsNotEmpty()
   isPrivacyTerms: boolean;
 
-  @ApiProperty({ default: false, description: '마케팅 이용약관' })
+  @ApiProperty({ description: '마케팅 이용약관' })
   @IsBoolean()
+  @IsNotEmpty()
   isMarketingTerms: boolean;
 
   @ApiProperty({ default: 'USER', description: '권한' })
