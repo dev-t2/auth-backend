@@ -1,20 +1,20 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Patch, Param, Delete } from '@nestjs/common';
+import { ParsePositiveIntPipe } from 'src/common/pipes/parse-positive-int.pipe';
 
 import { PlansService } from './plans.service';
-import { CreatePlanDto, UpdatePlanDto } from './plans.dto';
 
 @Controller('plans')
 export class PlansController {
   constructor(private readonly plansService: PlansService) {}
 
-  @Post()
-  create(@Body() createPlanDto: CreatePlanDto) {
-    return this.plansService.create(createPlanDto);
+  @Post(':userId')
+  async create(@Param('userId', ParsePositiveIntPipe) userId: number) {
+    return await this.plansService.create(userId);
   }
 
   @Get()
-  findAll() {
-    return this.plansService.findAll();
+  async findAll() {
+    return await this.plansService.findAll();
   }
 
   @Get(':id')
@@ -23,8 +23,8 @@ export class PlansController {
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updatePlanDto: UpdatePlanDto) {
-    return this.plansService.update(+id, updatePlanDto);
+  update(@Param('id') id: string) {
+    return this.plansService.update(+id);
   }
 
   @Delete(':id')

@@ -12,14 +12,16 @@ export class PrismaService extends PrismaClient implements OnModuleInit {
     });
 
     this.$use(async (params, next) => {
-      if (params.action == 'delete') {
-        params.action = 'update';
-        params.args['data'].deletedAt = new Date();
-      }
+      if (params.model === 'User') {
+        if (params.action === 'delete') {
+          params.action = 'update';
+          params.args['data'] = { deletedAt: new Date() };
+        }
 
-      if (params.action == 'deleteMany') {
-        params.action = 'updateMany';
-        params.args['data'].deletedAt = new Date();
+        if (params.action === 'deleteMany') {
+          params.action = 'updateMany';
+          params.args['data'] = { deletedAt: new Date() };
+        }
       }
 
       return next(params);

@@ -1,16 +1,13 @@
 import { Injectable } from '@nestjs/common';
 
 import { UsersRepository } from './users.repository';
-import { CreateUserDto, UpdateUserDto } from './users.dto';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
 
-  create(createUserDto: CreateUserDto) {
-    console.log(createUserDto);
-
-    return 'This action adds a new user';
+  async create() {
+    return await this.usersRepository.create();
   }
 
   findAll() {
@@ -21,13 +18,11 @@ export class UsersService {
     return `This action returns a #${id} user`;
   }
 
-  update(id: number, updateUserDto: UpdateUserDto) {
-    console.log(updateUserDto);
-
+  update(id: number) {
     return `This action updates a #${id} user`;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} user`;
+  async delete(id: number) {
+    return await this.usersRepository.delete(id);
   }
 }

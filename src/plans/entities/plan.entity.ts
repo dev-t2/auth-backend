@@ -9,7 +9,7 @@ export class Plan implements PlanModel {
 
   @ApiProperty({ required: true, description: '유저 아이디' })
   @IsPositive()
-  userId: number | null;
+  userId: number;
 
   @ApiProperty({ description: '생성된 날짜' })
   @IsDate()
@@ -18,8 +18,4 @@ export class Plan implements PlanModel {
   @ApiProperty({ description: '업데이트된 날짜' })
   @IsDate()
   updatedAt: Date;
-
-  @ApiProperty({ description: '삭제된 날짜' })
-  @IsDate()
-  deletedAt: Date | null;
 }
