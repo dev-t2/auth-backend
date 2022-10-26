@@ -26,7 +26,14 @@ export class AuthService {
     }
 
     return {
-      accessToken: this.jwtService.sign({ id: user.id }),
+      accessToken: this.jwtService.sign(
+        { sub: user.id },
+        { secret: process.env.ACCESS_TOKEN_SECRET_KEY, expiresIn: '5m' },
+      ),
+      refreshToken: this.jwtService.sign(
+        { sub: user.id },
+        { secret: process.env.REFRESH_TOKEN_SECRET_KEY, expiresIn: '10m' },
+      ),
     };
   }
 }

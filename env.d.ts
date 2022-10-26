@@ -7,5 +7,8 @@ declare namespace NodeJS {
 
     ADMIN_NAME: string;
     ADMIN_PASSWORD: string;
+
+    ACCESS_TOKEN_SECRET_KEY: string;
+    REFRESH_TOKEN_SECRET_KEY: string;
   }
 }
