@@ -8,7 +8,7 @@ export class ConfirmNicknameDto extends PickType(User, ['nickname'] as const) {}
 
 export class ConfirmPhoneNumberDto extends PickType(User, ['phoneNumber'] as const) {}
 
-export class SignUpDto extends PickType(User, [
+export class CreateUserDto extends PickType(User, [
   'email',
   'nickname',
   'password',
@@ -17,5 +17,9 @@ export class SignUpDto extends PickType(User, [
   'isPrivacyTerms',
   'isMarketingTerms',
 ] as const) {}
+
+export class FindEmailDto extends PickType(User, ['phoneNumber'] as const) {}
+
+export class PasswordResetDto extends PickType(User, ['password', 'phoneNumber'] as const) {}
 
 export class SignInDto extends PickType(User, ['email', 'password'] as const) {}

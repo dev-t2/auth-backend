@@ -2,7 +2,7 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import bcrypt from 'bcrypt';
 
 import { UsersRepository } from './users.repository';
-import { SignUpDto } from './users.dto';
+import { CreateUserDto, FindEmailDto, PasswordResetDto } from './users.dto';
 
 @Injectable()
 export class UsersService {
@@ -32,7 +32,7 @@ export class UsersService {
     }
   }
 
-  async signUp({
+  async createUser({
     email,
     nickname,
     password,
@@ -40,7 +40,7 @@ export class UsersService {
     isServiceTerms,
     isPrivacyTerms,
     isMarketingTerms,
-  }: SignUpDto) {
+  }: CreateUserDto) {
     if (!isServiceTerms || !isPrivacyTerms) {
       throw new BadRequestException();
     }
@@ -53,14 +53,36 @@ export class UsersService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await this.usersRepository.createUser({
+    await this.usersRepository.createUser(
       email,
       nickname,
+      hashedPassword,
       phoneNumber,
-      password: hashedPassword,
       isServiceTerms,
       isPrivacyTerms,
       isMarketingTerms,
-    });
+    );
+  }
+
+  async findEmail({ phoneNumber }: FindEmailDto) {
+    const user = await this.usersRepository.findUserByPhoneNumber(phoneNumber);
+
+    if (!user) {
+      throw new BadRequestException();
+    }
+
+    return { email: user.email };
+  }
+
+  async passwordReset({ password, phoneNumber }: PasswordResetDto) {
+    const user = await this.usersRepository.findUserByPhoneNumber(phoneNumber);
+
+    if (!user) {
+      throw new BadRequestException();
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    await this.usersRepository.updateUserPassword(hashedPassword, phoneNumber);
   }
 }
