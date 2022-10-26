@@ -35,12 +35,16 @@ export class UsersService {
   async signUp({
     email,
     nickname,
-    phoneNumber,
     password,
+    phoneNumber,
     isServiceTerms,
     isPrivacyTerms,
     isMarketingTerms,
   }: SignUpDto) {
+    if (!isServiceTerms || !isPrivacyTerms) {
+      throw new BadRequestException();
+    }
+
     await Promise.all([
       this.confirmEmail(email),
       this.confirmNickname(nickname),

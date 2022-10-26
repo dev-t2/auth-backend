@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
 import { PrismaService } from 'src/prisma/prisma.service';
 import { SignUpDto } from './users.dto';
@@ -8,24 +8,42 @@ export class UsersRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
   async findUserByEmail(email: string) {
-    return await this.prismaService.user.findUnique({
-      where: { email },
-      select: { id: true },
-    });
+    try {
+      return await this.prismaService.user.findUnique({
+        where: { email },
+        select: { id: true },
+      });
+    } catch (e) {
+      console.error(e);
+
+      throw new InternalServerErrorException();
+    }
   }
 
   async findUserByNickname(nickname: string) {
-    return await this.prismaService.user.findUnique({
-      where: { nickname },
-      select: { id: true },
-    });
+    try {
+      return await this.prismaService.user.findUnique({
+        where: { nickname },
+        select: { id: true },
+      });
+    } catch (e) {
+      console.error(e);
+
+      throw new InternalServerErrorException();
+    }
   }
 
   async findUserByPhoneNumber(phoneNumber: string) {
-    return await this.prismaService.user.findUnique({
-      where: { phoneNumber },
-      select: { id: true },
-    });
+    try {
+      return await this.prismaService.user.findUnique({
+        where: { phoneNumber },
+        select: { id: true },
+      });
+    } catch (e) {
+      console.error(e);
+
+      throw new InternalServerErrorException();
+    }
   }
 
   async createUser({
@@ -37,22 +55,28 @@ export class UsersRepository {
     isPrivacyTerms,
     isMarketingTerms,
   }: SignUpDto) {
-    return await this.prismaService.user.create({
-      data: {
-        email,
-        nickname,
-        password,
-        phoneNumber,
-        isServiceTerms,
-        isPrivacyTerms,
-        isMarketingTerms,
-      },
-      select: {
-        id: true,
-        email: true,
-        nickname: true,
-        phoneNumber: true,
-      },
-    });
+    try {
+      return await this.prismaService.user.create({
+        data: {
+          email,
+          nickname,
+          password,
+          phoneNumber,
+          isServiceTerms,
+          isPrivacyTerms,
+          isMarketingTerms,
+        },
+        select: {
+          id: true,
+          email: true,
+          nickname: true,
+          phoneNumber: true,
+        },
+      });
+    } catch (e) {
+      console.error(e);
+
+      throw new InternalServerErrorException();
+    }
   }
 }
