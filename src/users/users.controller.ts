@@ -22,13 +22,13 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: '전화번호 중복 확인' })
-  @Post('confirm/phone')
+  @Post('confirm/phoneNumber')
   async confirmPhoneNumber(@Body() { phoneNumber }: ConfirmPhoneNumberDto) {
     return await this.usersService.confirmPhoneNumber(phoneNumber);
   }
 
   @ApiOperation({ summary: '회원가입' })
-  @Post('signup')
+  @Post('signUp')
   async signUp(@Body() signUpDto: SignUpDto) {
     return await this.usersService.signUp(signUpDto);
   }
