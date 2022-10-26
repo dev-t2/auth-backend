@@ -46,32 +46,11 @@ export class UsersRepository {
     }
   }
 
-  async createUser({
-    email,
-    nickname,
-    password,
-    phoneNumber,
-    isServiceTerms,
-    isPrivacyTerms,
-    isMarketingTerms,
-  }: SignUpDto) {
+  async createUser(signUpDto: SignUpDto) {
     try {
       return await this.prismaService.user.create({
-        data: {
-          email,
-          nickname,
-          password,
-          phoneNumber,
-          isServiceTerms,
-          isPrivacyTerms,
-          isMarketingTerms,
-        },
-        select: {
-          id: true,
-          email: true,
-          nickname: true,
-          phoneNumber: true,
-        },
+        data: { ...signUpDto },
+        select: { id: true },
       });
     } catch (e) {
       console.error(e);
