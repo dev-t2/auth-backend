@@ -3,6 +3,7 @@ import { ConfigModule } from '@nestjs/config';
 import Joi from 'joi';
 
 import { PrismaModule } from './prisma/prisma.module';
+import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
 import { HttpLoggerMiddleware } from './common/middlewares/http-logger.middleware';
 
@@ -24,6 +25,7 @@ import { HttpLoggerMiddleware } from './common/middlewares/http-logger.middlewar
       },
     }),
     PrismaModule,
+    AuthModule,
     UsersModule,
   ],
 })

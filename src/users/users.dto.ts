@@ -17,3 +17,5 @@ export class SignUpDto extends PickType(User, [
   'isPrivacyTerms',
   'isMarketingTerms',
 ] as const) {}
+
+export class SignInDto extends PickType(User, ['email', 'password'] as const) {}
