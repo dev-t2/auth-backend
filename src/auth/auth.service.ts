@@ -15,7 +15,7 @@ export class AuthService {
   async signIn({ email, password }: SignInDto) {
     const user = await this.usersRepository.findUserByEmail(email);
 
-    if (!user) {
+    if (!user || user.deletedAt) {
       throw new UnauthorizedException();
     }
 
@@ -40,7 +40,7 @@ export class AuthService {
   async refreshToken(id: number) {
     const user = await this.usersRepository.findUserById(id);
 
-    if (!user) {
+    if (!user || user.deletedAt) {
       throw new UnauthorizedException();
     }
 
