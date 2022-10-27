@@ -22,6 +22,6 @@ export class UserDto extends PickType(User, ['id'] as const) {}
 
 export class FindEmailDto extends PickType(User, ['phoneNumber'] as const) {}
 
-export class PasswordResetDto extends PickType(User, ['password', 'phoneNumber'] as const) {}
+export class UpdatePasswordDto extends PickType(User, ['password', 'phoneNumber'] as const) {}
 
 export class SignInDto extends PickType(User, ['email', 'password'] as const) {}

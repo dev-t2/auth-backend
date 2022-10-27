@@ -2,33 +2,58 @@ import { BadRequestException, Injectable } from '@nestjs/common';
 import bcrypt from 'bcrypt';
 
 import { UsersRepository } from './users.repository';
-import { CreateUserDto, FindEmailDto, PasswordResetDto } from './users.dto';
+import { CreateUserDto, FindEmailDto, UpdatePasswordDto } from './users.dto';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly usersRepository: UsersRepository) {}
 
-  async confirmEmail(email: string) {
-    const isUser = await this.usersRepository.findUserByEmail(email);
+  async deleteUser(id: number, deletedAt: Date) {
+    const currentTime = new Date().getTime();
+    const deletedTime = deletedAt.getTime();
 
-    if (isUser) {
+    const isDelete = Math.floor((currentTime - deletedTime) / (1000 * 60 * 60 * 24)) >= 7;
+
+    if (isDelete) {
+      await this.usersRepository.deleteUser(id);
+    } else {
       throw new BadRequestException();
+    }
+  }
+
+  async confirmEmail(email: string) {
+    const user = await this.usersRepository.findUserByEmail(email);
+
+    if (user) {
+      if (user.deletedAt) {
+        await this.deleteUser(user.id, user.deletedAt);
+      } else {
+        throw new BadRequestException();
+      }
     }
   }
 
   async confirmNickname(nickname: string) {
-    const isUser = await this.usersRepository.findUserByNickname(nickname);
+    const user = await this.usersRepository.findUserByNickname(nickname);
 
-    if (isUser) {
-      throw new BadRequestException();
+    if (user) {
+      if (user.deletedAt) {
+        await this.deleteUser(user.id, user.deletedAt);
+      } else {
+        throw new BadRequestException();
+      }
     }
   }
 
   async confirmPhoneNumber(phoneNumber: string) {
-    const isUser = await this.usersRepository.findUserByPhoneNumber(phoneNumber);
+    const user = await this.usersRepository.findUserByPhoneNumber(phoneNumber);
 
-    if (isUser) {
-      throw new BadRequestException();
+    if (user) {
+      if (user.deletedAt) {
+        await this.deleteUser(user.id, user.deletedAt);
+      } else {
+        throw new BadRequestException();
+      }
     }
   }
 
@@ -74,7 +99,7 @@ export class UsersService {
     return { email: user.email };
   }
 
-  async passwordReset({ password, phoneNumber }: PasswordResetDto) {
+  async updatePassword({ password, phoneNumber }: UpdatePasswordDto) {
     const user = await this.usersRepository.findUserByPhoneNumber(phoneNumber);
 
     if (!user) {
@@ -83,10 +108,10 @@ export class UsersService {
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await this.usersRepository.updateUserPassword(hashedPassword, phoneNumber);
+    await this.usersRepository.updatePassword(hashedPassword, phoneNumber);
   }
 
-  async deleteUser(id: number) {
-    return await this.usersRepository.deleteUser(id);
+  async updateDeletedAt(id: number) {
+    return await this.usersRepository.updateDeletedAt(id);
   }
 }

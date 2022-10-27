@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Post, Put, UseGuards } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
@@ -11,8 +11,8 @@ import {
   ConfirmPhoneNumberDto,
   CreateUserDto,
   FindEmailDto,
-  PasswordResetDto,
   SignInDto,
+  UpdatePasswordDto,
   UserDto,
 } from './users.dto';
 
@@ -62,8 +62,8 @@ export class UsersController {
 
   @ApiOperation({ summary: '비밀번호 재설정' })
   @Put('password')
-  async passwordReset(@Body() passwordResetDto: PasswordResetDto) {
-    return await this.usersService.passwordReset(passwordResetDto);
+  async updatePassword(@Body() updatePasswordDto: UpdatePasswordDto) {
+    return await this.usersService.updatePassword(updatePasswordDto);
   }
 
   @ApiOperation({ summary: '로그인' })
@@ -80,19 +80,11 @@ export class UsersController {
     return await this.authService.refreshToken(id);
   }
 
-  @ApiOperation({ summary: '로그아웃' })
-  @ApiBearerAuth('AccessToken')
-  @UseGuards(AuthGuard('access-token'))
-  @Delete('sign')
-  async signOut() {
-    return;
-  }
-
   @ApiOperation({ summary: '회원탈퇴' })
   @ApiBearerAuth('AccessToken')
   @UseGuards(AuthGuard('access-token'))
-  @Delete()
-  async deleteUser(@User() { id }: UserDto) {
-    return this.usersService.deleteUser(id);
+  @Put()
+  async updateDeletedAt(@User() { id }: UserDto) {
+    return this.usersService.updateDeletedAt(id);
   }
 }

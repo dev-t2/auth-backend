@@ -10,7 +10,7 @@ export class UsersRepository {
     try {
       return await this.prismaService.user.findUnique({
         where: { id },
-        select: { id: true },
+        select: { id: true, deletedAt: true },
       });
     } catch (e) {
       console.error(e);
@@ -23,7 +23,7 @@ export class UsersRepository {
     try {
       return await this.prismaService.user.findUnique({
         where: { email },
-        select: { id: true, password: true },
+        select: { id: true, password: true, deletedAt: true },
       });
     } catch (e) {
       console.error(e);
@@ -36,7 +36,7 @@ export class UsersRepository {
     try {
       return await this.prismaService.user.findUnique({
         where: { nickname },
-        select: { id: true },
+        select: { id: true, deletedAt: true },
       });
     } catch (e) {
       console.error(e);
@@ -49,7 +49,7 @@ export class UsersRepository {
     try {
       return await this.prismaService.user.findUnique({
         where: { phoneNumber },
-        select: { id: true, email: true },
+        select: { id: true, email: true, deletedAt: true },
       });
     } catch (e) {
       console.error(e);
@@ -87,11 +87,24 @@ export class UsersRepository {
     }
   }
 
-  async updateUserPassword(password: string, phoneNumber: string) {
+  async updatePassword(password: string, phoneNumber: string) {
     try {
       await this.prismaService.user.update({
         where: { phoneNumber },
         data: { password },
+      });
+    } catch (e) {
+      console.error(e);
+
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async updateDeletedAt(id: number) {
+    try {
+      await this.prismaService.user.update({
+        where: { id },
+        data: { deletedAt: new Date() },
       });
     } catch (e) {
       console.error(e);
