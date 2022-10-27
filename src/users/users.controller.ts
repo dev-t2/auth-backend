@@ -36,16 +36,10 @@ export class UsersController {
     return await this.usersService.confirmNickname(nickname);
   }
 
-  @ApiOperation({ summary: '전화번호 중복 확인 및 인증 번호 전송' })
+  @ApiOperation({ summary: '전화번호 중복 확인' })
   @Post('confirm/phone')
   async confirmPhoneNumber(@Body() { phoneNumber }: ConfirmPhoneNumberDto) {
     return await this.usersService.confirmPhoneNumber(phoneNumber);
-  }
-
-  @ApiOperation({ summary: '인증 번호 확인' })
-  @Post('confirm/auth')
-  async confirmAuthNumber() {
-    return;
   }
 
   @ApiOperation({ summary: '회원가입' })
@@ -55,12 +49,14 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: '이메일 찾기' })
+  @ApiBearerAuth()
   @Get('email')
   async findEmail(@Body() findEmailDto: FindEmailDto) {
     return await this.usersService.findEmail(findEmailDto);
   }
 
   @ApiOperation({ summary: '비밀번호 재설정' })
+  @ApiBearerAuth()
   @Put('password')
   async updatePassword(@Body() updatePasswordDto: UpdatePasswordDto) {
     return await this.usersService.updatePassword(updatePasswordDto);
