@@ -85,4 +85,8 @@ export class UsersService {
 
     await this.usersRepository.updateUserPassword(hashedPassword, phoneNumber);
   }
+
+  async deleteUser(id: number) {
+    return await this.usersRepository.deleteUser(id);
+  }
 }

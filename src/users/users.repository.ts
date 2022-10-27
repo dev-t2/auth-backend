@@ -99,4 +99,16 @@ export class UsersRepository {
       throw new InternalServerErrorException();
     }
   }
+
+  async deleteUser(id: number) {
+    try {
+      await this.prismaService.user.delete({
+        where: { id },
+      });
+    } catch (e) {
+      console.error(e);
+
+      throw new InternalServerErrorException();
+    }
+  }
 }

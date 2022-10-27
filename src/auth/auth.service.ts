@@ -36,4 +36,19 @@ export class AuthService {
       ),
     };
   }
+
+  async refreshToken(id: number) {
+    const user = await this.usersRepository.findUserById(id);
+
+    if (!user) {
+      throw new UnauthorizedException();
+    }
+
+    return {
+      accessToken: this.jwtService.sign(
+        { sub: user.id },
+        { secret: process.env.ACCESS_SECRET_KEY, expiresIn: '60s' },
+      ),
+    };
+  }
 }
