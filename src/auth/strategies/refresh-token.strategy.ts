@@ -13,7 +13,7 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'refresh-to
   constructor(private readonly usersRepository: UsersRepository) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: process.env.REFRESH_SECRET_KEY,
+      secretOrKey: process.env.JWT_SECRET_KEY,
     });
   }
 

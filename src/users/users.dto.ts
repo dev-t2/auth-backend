@@ -1,4 +1,5 @@
-import { PickType } from '@nestjs/swagger';
+import { ApiProperty, PickType } from '@nestjs/swagger';
+import { IsString } from 'class-validator';
 
 import { User } from './entities/user.entity';
 
@@ -7,6 +8,12 @@ export class ConfirmEmailDto extends PickType(User, ['email'] as const) {}
 export class ConfirmNicknameDto extends PickType(User, ['nickname'] as const) {}
 
 export class ConfirmPhoneNumberDto extends PickType(User, ['phoneNumber'] as const) {}
+
+export class ConfirmAuthNumberDto {
+  @ApiProperty({ required: true, description: '인증번호' })
+  @IsString()
+  authNumber: string;
+}
 
 export class CreateUserDto extends PickType(User, [
   'email',
@@ -17,8 +24,6 @@ export class CreateUserDto extends PickType(User, [
   'isPrivacyTerms',
   'isMarketingTerms',
 ] as const) {}
-
-export class UserDto extends PickType(User, ['id'] as const) {}
 
 export class FindEmailDto extends PickType(User, ['phoneNumber'] as const) {}
 

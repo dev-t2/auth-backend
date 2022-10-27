@@ -5,11 +5,12 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UsersRepository } from 'src/users/users.repository';
 
 interface IValidate {
-  sub: number;
+  sub: string;
+  authNumber: string;
 }
 
 @Injectable()
-export class AccessTokenStrategy extends PassportStrategy(Strategy, 'access-token') {
+export class AuthTokenStrategy extends PassportStrategy(Strategy, 'auth-token') {
   constructor(private readonly usersRepository: UsersRepository) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -18,13 +19,13 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'access-toke
     });
   }
 
-  async validate({ sub }: IValidate) {
-    const user = await this.usersRepository.findUserById(sub);
+  async validate({ sub, authNumber }: IValidate) {
+    const user = await this.usersRepository.findUserByPhoneNumber(sub);
 
-    if (!user) {
+    if (user) {
       throw new UnauthorizedException();
     }
 
-    return user;
+    return { authNumber };
   }
 }

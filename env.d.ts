@@ -8,7 +8,10 @@ declare namespace NodeJS {
     ADMIN_NAME: string;
     ADMIN_PASSWORD: string;
 
-    ACCESS_SECRET_KEY: string;
-    REFRESH_SECRET_KEY: string;
+    JWT_SECRET_KEY: string;
+
+    NAVER_ACCESS_KEY: string;
+    NAVER_SECRET_KEY: string;
+    NAVER_SERVICE_ID: string;
   }
 }

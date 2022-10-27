@@ -1,11 +1,11 @@
 import { Body, Controller, Get, Post, Put, UseGuards } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
+import { AuthGuard } from '@nestjs/passport';
 
-import { AuthService } from 'src/auth/auth.service';
-import { User } from 'src/auth/decorators';
+import { Auth, User } from 'src/auth/decorators';
 import { UsersService } from './users.service';
 import {
+  ConfirmAuthNumberDto,
   ConfirmEmailDto,
   ConfirmNicknameDto,
   ConfirmPhoneNumberDto,
@@ -13,16 +13,12 @@ import {
   FindEmailDto,
   SignInDto,
   UpdatePasswordDto,
-  UserDto,
 } from './users.dto';
 
 @ApiTags('USER')
 @Controller('users')
 export class UsersController {
-  constructor(
-    private readonly authService: AuthService,
-    private readonly usersService: UsersService,
-  ) {}
+  constructor(private readonly usersService: UsersService) {}
 
   @ApiOperation({ summary: '이메일 중복 확인' })
   @Post('confirm/email')
@@ -36,10 +32,24 @@ export class UsersController {
     return await this.usersService.confirmNickname(nickname);
   }
 
-  @ApiOperation({ summary: '전화번호 중복 확인' })
+  @ApiOperation({ summary: '전화번호 중복 확인 및 인증번호 전송' })
   @Post('confirm/phone')
   async confirmPhoneNumber(@Body() { phoneNumber }: ConfirmPhoneNumberDto) {
     return await this.usersService.confirmPhoneNumber(phoneNumber);
+  }
+
+  @ApiOperation({ summary: '인증번호 확인' })
+  @ApiBearerAuth('AuthToken')
+  @UseGuards(AuthGuard('auth-token'))
+  @Post('confirm/auth')
+  async confirmAuthNumber(
+    @Auth('authNumber') authNumber: string,
+    @Body() confirmAuthNumberDto: ConfirmAuthNumberDto,
+  ) {
+    console.log(authNumber);
+    console.log(confirmAuthNumberDto);
+
+    return;
   }
 
   @ApiOperation({ summary: '회원가입' })
@@ -65,22 +75,22 @@ export class UsersController {
   @ApiOperation({ summary: '로그인' })
   @Post('sign')
   async signIn(@Body() signInDto: SignInDto) {
-    return await this.authService.signIn(signInDto);
+    return this.usersService.signIn(signInDto);
   }
 
   @ApiOperation({ summary: '토큰 재발급' })
   @ApiBearerAuth('RefreshToken')
   @UseGuards(AuthGuard('refresh-token'))
-  @Get('refresh')
-  async refreshToken(@User() { id }: UserDto) {
-    return await this.authService.refreshToken(id);
+  @Get('access')
+  async accessToken(@User('id') id: number) {
+    return await this.usersService.accessToken(id);
   }
 
   @ApiOperation({ summary: '회원탈퇴' })
   @ApiBearerAuth('AccessToken')
   @UseGuards(AuthGuard('access-token'))
   @Put()
-  async updateDeletedAt(@User() { id }: UserDto) {
+  async updateDeletedAt(@User('id') id: number) {
     return this.usersService.updateDeletedAt(id);
   }
 }

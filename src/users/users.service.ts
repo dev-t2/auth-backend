@@ -1,12 +1,16 @@
 import { BadRequestException, Injectable } from '@nestjs/common';
 import bcrypt from 'bcrypt';
 
+import { AuthService } from 'src/auth/auth.service';
 import { UsersRepository } from './users.repository';
-import { CreateUserDto, FindEmailDto, UpdatePasswordDto } from './users.dto';
+import { CreateUserDto, FindEmailDto, SignInDto, UpdatePasswordDto } from './users.dto';
 
 @Injectable()
 export class UsersService {
-  constructor(private readonly usersRepository: UsersRepository) {}
+  constructor(
+    private readonly authService: AuthService,
+    private readonly usersRepository: UsersRepository,
+  ) {}
 
   async deleteUser(id: number, deletedAt: Date) {
     const currentTime = new Date().getTime();
@@ -51,10 +55,14 @@ export class UsersService {
     if (user) {
       if (user.deletedAt) {
         await this.deleteUser(user.id, user.deletedAt);
+
+        return await this.authService.sendAuthMessage(phoneNumber);
       } else {
         throw new BadRequestException();
       }
     }
+
+    return await this.authService.sendAuthMessage(phoneNumber);
   }
 
   async createUser({
@@ -109,6 +117,14 @@ export class UsersService {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     await this.usersRepository.updatePassword(hashedPassword, phoneNumber);
+  }
+
+  async signIn(signInDto: SignInDto) {
+    return await this.authService.signIn(signInDto);
+  }
+
+  async accessToken(id: number) {
+    return await this.authService.accessToken(id);
   }
 
   async updateDeletedAt(id: number) {
