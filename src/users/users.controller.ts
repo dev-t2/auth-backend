@@ -1,7 +1,8 @@
-import { Body, Controller, Delete, Get, Post, Put } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Put, UseGuards } from '@nestjs/common';
 import { ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { AuthService } from 'src/auth/auth.service';
+import { AccessTokenGuard, RefreshTokenGuard } from 'src/auth/guards';
 import { UsersService } from './users.service';
 import {
   ConfirmEmailDto,
@@ -69,18 +70,21 @@ export class UsersController {
     return await this.authService.signIn(signInDto);
   }
 
+  @UseGuards(RefreshTokenGuard)
   @ApiOperation({ summary: '토큰 재발급' })
   @Get('refresh')
   refreshToken() {
     return;
   }
 
+  @UseGuards(AccessTokenGuard)
   @ApiOperation({ summary: '로그아웃' })
   @Delete('sign')
   signOut() {
     return;
   }
 
+  @UseGuards(AccessTokenGuard)
   @ApiOperation({ summary: '회원탈퇴' })
   @Delete()
   deleteUser() {

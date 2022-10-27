@@ -28,11 +28,11 @@ export class AuthService {
     return {
       accessToken: this.jwtService.sign(
         { sub: user.id },
-        { secret: process.env.ACCESS_TOKEN_SECRET_KEY, expiresIn: '5m' },
+        { secret: process.env.ACCESS_SECRET_KEY, expiresIn: '60s' },
       ),
       refreshToken: this.jwtService.sign(
         { sub: user.id },
-        { secret: process.env.REFRESH_TOKEN_SECRET_KEY, expiresIn: '10m' },
+        { secret: process.env.REFRESH_SECRET_KEY },
       ),
     };
   }

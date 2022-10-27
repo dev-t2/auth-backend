@@ -6,6 +6,19 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class UsersRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
+  async findUserById(id: number) {
+    try {
+      return await this.prismaService.user.findUnique({
+        where: { id },
+        select: { id: true },
+      });
+    } catch (e) {
+      console.error(e);
+
+      throw new InternalServerErrorException();
+    }
+  }
+
   async findUserByEmail(email: string) {
     try {
       return await this.prismaService.user.findUnique({
