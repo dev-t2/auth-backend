@@ -1,8 +1,9 @@
 import { Body, Controller, Delete, Get, Post, Put, UseGuards } from '@nestjs/common';
-import { ApiOperation, ApiTags } from '@nestjs/swagger';
+import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 
 import { AuthService } from 'src/auth/auth.service';
 import { AccessTokenGuard, RefreshTokenGuard } from 'src/auth/guards';
+import { User } from 'src/auth/decorators';
 import { UsersService } from './users.service';
 import {
   ConfirmEmailDto,
@@ -12,7 +13,9 @@ import {
   FindEmailDto,
   PasswordResetDto,
   SignInDto,
+  UserDto,
 } from './users.dto';
+import { AuthGuard } from '@nestjs/passport';
 
 @ApiTags('USER')
 @Controller('users')
@@ -70,22 +73,25 @@ export class UsersController {
     return await this.authService.signIn(signInDto);
   }
 
-  @UseGuards(RefreshTokenGuard)
   @ApiOperation({ summary: '토큰 재발급' })
+  @ApiBearerAuth('RefreshToken')
+  @UseGuards(RefreshTokenGuard)
   @Get('refresh')
   refreshToken() {
     return;
   }
 
-  @UseGuards(AccessTokenGuard)
   @ApiOperation({ summary: '로그아웃' })
+  @ApiBearerAuth('AccessToken')
+  @UseGuards(AuthGuard('access-token'))
   @Delete('sign')
-  signOut() {
-    return;
+  signOut(@User() userDto: UserDto) {
+    return userDto;
   }
 
-  @UseGuards(AccessTokenGuard)
   @ApiOperation({ summary: '회원탈퇴' })
+  @ApiBearerAuth('AccessToken')
+  @UseGuards(AccessTokenGuard)
   @Delete()
   deleteUser() {
     return;
