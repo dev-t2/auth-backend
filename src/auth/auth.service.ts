@@ -1,7 +1,14 @@
-import { Injectable, InternalServerErrorException, UnauthorizedException } from '@nestjs/common';
+import {
+  CACHE_MANAGER,
+  Inject,
+  Injectable,
+  InternalServerErrorException,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
+import { Cache } from 'cache-manager';
 import axios from 'axios';
 
 import { UsersRepository } from 'src/users/users.repository';
@@ -10,11 +17,14 @@ import { SignInDto } from 'src/users/users.dto';
 @Injectable()
 export class AuthService {
   constructor(
+    @Inject(CACHE_MANAGER) private readonly cache: Cache,
     private readonly jwtService: JwtService,
     private readonly usersRepository: UsersRepository,
   ) {}
 
   async sendAuthNumberMessage(phoneNumber: string) {
+    await this.cache.del(phoneNumber);
+
     const timestamp = Date.now().toString();
 
     const hmac = crypto.createHmac('sha256', process.env.NAVER_SECRET_KEY);
@@ -40,11 +50,23 @@ export class AuthService {
 
     try {
       await axios.post(url, data, { headers });
+
+      await this.cache.set(phoneNumber, authNumber);
     } catch (e) {
       console.error(e);
 
       throw new InternalServerErrorException();
     }
+  }
+
+  async confirmAuthNumber(phoneNumber: string, authNumber: string) {
+    console.log(authNumber);
+
+    const cachedAuthNumber = await this.cache.get<string>(phoneNumber);
+
+    console.log(cachedAuthNumber);
+
+    return;
   }
 
   async signIn({ email, password }: SignInDto) {

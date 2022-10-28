@@ -1,4 +1,4 @@
-import { MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
+import { CacheModule, MiddlewareConsumer, Module, NestModule } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import Joi from 'joi';
 
@@ -25,6 +25,7 @@ import { HttpLoggerMiddleware } from './common/middlewares/http-logger.middlewar
         abortEarly: true,
       },
     }),
+    CacheModule.register({ isGlobal: true, ttl: 300 }),
     UsersModule,
     PrismaModule,
     AuthModule,

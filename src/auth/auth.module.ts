@@ -7,7 +7,7 @@ import { AuthService } from './auth.service';
 import { AccessTokenStrategy, RefreshTokenStrategy } from './strategies';
 
 @Module({
-  imports: [PassportModule, JwtModule, forwardRef(() => UsersModule)],
+  imports: [forwardRef(() => UsersModule), PassportModule, JwtModule],
   providers: [AuthService, AccessTokenStrategy, RefreshTokenStrategy],
   exports: [AuthService],
 })

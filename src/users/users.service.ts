@@ -74,7 +74,7 @@ export class UsersService {
   }
 
   async confirmAuthNumber(phoneNumber: string, authNumber: string) {
-    return { phoneNumber, authNumber };
+    return await this.authService.confirmAuthNumber(phoneNumber, authNumber);
   }
 
   async createUser({
