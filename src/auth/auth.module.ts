@@ -4,22 +4,11 @@ import { JwtModule } from '@nestjs/jwt';
 
 import { UsersModule } from 'src/users/users.module';
 import { AuthService } from './auth.service';
-import {
-  AccessTokenStrategy,
-  SignTokenStrategy,
-  PhoneTokenStrategy,
-  RefreshTokenStrategy,
-} from './strategies';
+import { AccessTokenStrategy, RefreshTokenStrategy } from './strategies';
 
 @Module({
   imports: [PassportModule, JwtModule, forwardRef(() => UsersModule)],
-  providers: [
-    AuthService,
-    SignTokenStrategy,
-    PhoneTokenStrategy,
-    AccessTokenStrategy,
-    RefreshTokenStrategy,
-  ],
+  providers: [AuthService, AccessTokenStrategy, RefreshTokenStrategy],
   exports: [AuthService],
 })
 export class AuthModule {}

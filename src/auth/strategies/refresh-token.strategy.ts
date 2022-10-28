@@ -10,11 +10,11 @@ interface IValidate {
 }
 
 @Injectable()
-export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'refresh-token') {
+export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'refresh') {
   constructor(private readonly usersRepository: UsersRepository) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      ignoreExpiration: false,
+      ignoreExpiration: true,
       secretOrKey: process.env.JWT_SECRET_KEY,
     });
   }
@@ -26,7 +26,7 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'refresh-to
 
     const user = await this.usersRepository.findUserById(id);
 
-    if (!user || user?.deletedAt) {
+    if (!user || user.deletedAt) {
       throw new UnauthorizedException();
     }
 

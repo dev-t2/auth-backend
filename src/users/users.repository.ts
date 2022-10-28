@@ -6,19 +6,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 export class UsersRepository {
   constructor(private readonly prismaService: PrismaService) {}
 
-  async findUserById(id: number) {
-    try {
-      return await this.prismaService.user.findUnique({
-        where: { id },
-        select: { id: true, deletedAt: true },
-      });
-    } catch (e) {
-      console.error(e);
-
-      throw new InternalServerErrorException();
-    }
-  }
-
   async findUserByEmail(email: string) {
     try {
       return await this.prismaService.user.findUnique({
@@ -50,6 +37,19 @@ export class UsersRepository {
       return await this.prismaService.user.findUnique({
         where: { phoneNumber },
         select: { id: true, email: true, deletedAt: true },
+      });
+    } catch (e) {
+      console.error(e);
+
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async findUserById(id: number) {
+    try {
+      return await this.prismaService.user.findUnique({
+        where: { id },
+        select: { id: true, deletedAt: true },
       });
     } catch (e) {
       console.error(e);

@@ -49,28 +49,32 @@ export class UsersService {
     }
   }
 
-  async confirmPhoneNumber(phoneNumber: string) {
+  async confirmPhoneNumber(isDup: boolean, phoneNumber: string) {
     const user = await this.usersRepository.findUserByPhoneNumber(phoneNumber);
 
-    if (user) {
+    if (isDup && user) {
       if (user.deletedAt) {
         await this.deleteUser(user.id, user.deletedAt);
-
-        return await this.authService.sendAuthMessage(phoneNumber);
       } else {
         throw new BadRequestException();
       }
     }
 
-    return await this.authService.sendAuthMessage(phoneNumber);
+    if (!isDup && user) {
+      if (user.deletedAt) {
+        await this.deleteUser(user.id, user.deletedAt);
+
+        throw new BadRequestException();
+      }
+    }
   }
 
-  async confirmAuthNumber(authNumber1: string, authNunber2: string) {
-    if (authNumber1 !== authNunber2) {
-      throw new BadRequestException();
-    }
+  async createAuthNumber(phoneNumber: string) {
+    return await this.authService.sendAuthNumberMessage(phoneNumber);
+  }
 
-    return await this.authService.createPhoneToken();
+  async confirmAuthNumber(phoneNumber: string, authNumber: string) {
+    return { phoneNumber, authNumber };
   }
 
   async createUser({
@@ -89,7 +93,7 @@ export class UsersService {
     await Promise.all([
       this.confirmEmail(email),
       this.confirmNickname(nickname),
-      this.confirmPhoneNumber(phoneNumber),
+      this.confirmPhoneNumber(true, phoneNumber),
     ]);
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -105,30 +109,20 @@ export class UsersService {
     );
   }
 
-  async FindPhoneNumber(phoneNumber: string) {
+  async findEmail({ phoneNumber }: FindEmailDto) {
     const user = await this.usersRepository.findUserByPhoneNumber(phoneNumber);
 
     if (!user || user.deletedAt) {
       throw new BadRequestException();
     }
 
-    return await this.authService.sendAuthMessage(phoneNumber);
-  }
-
-  async findEmail({ phoneNumber }: FindEmailDto) {
-    const user = await this.usersRepository.findUserByPhoneNumber(phoneNumber);
-
-    if (!user) {
-      throw new BadRequestException();
-    }
-
     return { email: user.email };
   }
 
-  async updatePassword({ password, phoneNumber }: UpdatePasswordDto) {
+  async updatePassword({ phoneNumber, password }: UpdatePasswordDto) {
     const user = await this.usersRepository.findUserByPhoneNumber(phoneNumber);
 
-    if (!user) {
+    if (!user || user.deletedAt) {
       throw new BadRequestException();
     }
 

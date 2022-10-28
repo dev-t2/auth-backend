@@ -14,24 +14,18 @@ export class AuthService {
     private readonly usersRepository: UsersRepository,
   ) {}
 
-  createAuthNumber() {
-    return `${Math.floor(Math.random() * 1000000)}`.padStart(6, '0');
-  }
+  async sendAuthNumberMessage(phoneNumber: string) {
+    const timestamp = Date.now().toString();
 
-  createSignature() {
     const hmac = crypto.createHmac('sha256', process.env.NAVER_SECRET_KEY);
 
-    const message = `POST /sms/v2/services/${
-      process.env.NAVER_SERVICE_ID
-    }/messages\n${Date.now().toString()}\n${process.env.NAVER_ACCESS_KEY}`;
+    const message = `POST /sms/v2/services/${process.env.NAVER_SERVICE_ID}/messages\n${timestamp}\n${process.env.NAVER_ACCESS_KEY}`;
 
-    return hmac.update(message).digest('base64');
-  }
+    const signature = hmac.update(message).digest('base64');
 
-  async sendAuthMessage(phoneNumber: string) {
     const url = `https://sens.apigw.ntruss.com/sms/v2/services/${process.env.NAVER_SERVICE_ID}/messages`;
 
-    const authNumber = this.createAuthNumber();
+    const authNumber = `${Math.floor(Math.random() * 1000000)}`.padStart(6, '0');
 
     const content = `[SMIL] 인증번호: ${authNumber}\n인증번호를 입력해 주세요.`;
 
@@ -39,34 +33,18 @@ export class AuthService {
 
     const headers = {
       'Content-Type': 'application/json; charset=utf-8',
-      'x-ncp-apigw-timestamp': Date.now().toString(),
+      'x-ncp-apigw-timestamp': timestamp,
       'x-ncp-iam-access-key': process.env.NAVER_ACCESS_KEY,
-      'x-ncp-apigw-signature-v2': this.createSignature(),
+      'x-ncp-apigw-signature-v2': signature,
     };
 
     try {
       await axios.post(url, data, { headers });
-
-      return {
-        authToken: this.jwtService.sign(
-          { sub: 'sign', phoneNumber, authNumber },
-          { secret: process.env.JWT_SECRET_KEY, expiresIn: '5m' },
-        ),
-      };
     } catch (e) {
       console.error(e);
 
       throw new InternalServerErrorException();
     }
-  }
-
-  createPhoneToken() {
-    return {
-      phoneToken: this.jwtService.sign(
-        { sub: 'phone' },
-        { secret: process.env.JWT_SECRET_KEY, expiresIn: '5m' },
-      ),
-    };
   }
 
   async signIn({ email, password }: SignInDto) {

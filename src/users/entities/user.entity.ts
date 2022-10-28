@@ -33,15 +33,15 @@ export class User implements UserModel {
   @IsMobilePhone('ko-KR')
   phoneNumber: string;
 
-  @ApiProperty({ description: '서비스 이용약관' })
+  @ApiProperty({ default: false, description: '서비스 이용약관' })
   @IsBoolean()
   isServiceTerms: boolean;
 
-  @ApiProperty({ description: '개인정보 이용약관' })
+  @ApiProperty({ default: false, description: '개인정보 이용약관' })
   @IsBoolean()
   isPrivacyTerms: boolean;
 
-  @ApiProperty({ description: '마케팅 이용약관' })
+  @ApiProperty({ default: false, description: '마케팅 이용약관' })
   @IsBoolean()
   isMarketingTerms: boolean;
 

@@ -10,7 +10,7 @@ interface IValidate {
 }
 
 @Injectable()
-export class AccessTokenStrategy extends PassportStrategy(Strategy, 'access-token') {
+export class AccessTokenStrategy extends PassportStrategy(Strategy, 'access') {
   constructor(private readonly usersRepository: UsersRepository) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -26,7 +26,7 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'access-toke
 
     const user = await this.usersRepository.findUserById(id);
 
-    if (!user || user?.deletedAt) {
+    if (!user || user.deletedAt) {
       throw new UnauthorizedException();
     }
 
