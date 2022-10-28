@@ -11,6 +11,7 @@ import {
   ConfirmPhoneNumberDto,
   CreateUserDto,
   FindEmailDto,
+  FindPhoneNumberDto,
   SignInDto,
   UpdatePasswordDto,
 } from './users.dto';
@@ -39,34 +40,41 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: '인증번호 확인' })
-  @ApiBearerAuth('AuthToken')
-  @UseGuards(AuthGuard('auth-token'))
+  @ApiBearerAuth('Token')
+  @UseGuards(AuthGuard('sign-token'))
   @Post('confirm/auth')
   async confirmAuthNumber(
-    @Auth('authNumber') authNumber: string,
-    @Body() confirmAuthNumberDto: ConfirmAuthNumberDto,
+    @Auth('authNumber') authNumberByToken: string,
+    @Body() { authNumber }: ConfirmAuthNumberDto,
   ) {
-    console.log(authNumber);
-    console.log(confirmAuthNumberDto);
-
-    return;
+    return await this.usersService.confirmAuthNumber(authNumberByToken, authNumber);
   }
 
   @ApiOperation({ summary: '회원가입' })
+  @ApiBearerAuth('Token')
+  @UseGuards(AuthGuard('phone-token'))
   @Post()
   async createUser(@Body() createUserDto: CreateUserDto) {
     return await this.usersService.createUser(createUserDto);
   }
 
+  @ApiOperation({ summary: '전화번호 확인 및 인증번호 전송' })
+  @Post('phone')
+  async findPhoneNumber(@Body() { phoneNumber }: FindPhoneNumberDto) {
+    return await this.usersService.FindPhoneNumber(phoneNumber);
+  }
+
   @ApiOperation({ summary: '이메일 찾기' })
-  @ApiBearerAuth()
+  @ApiBearerAuth('Token')
+  @UseGuards(AuthGuard('phone-token'))
   @Get('email')
   async findEmail(@Body() findEmailDto: FindEmailDto) {
     return await this.usersService.findEmail(findEmailDto);
   }
 
   @ApiOperation({ summary: '비밀번호 재설정' })
-  @ApiBearerAuth()
+  @ApiBearerAuth('Token')
+  @UseGuards(AuthGuard('phone-token'))
   @Put('password')
   async updatePassword(@Body() updatePasswordDto: UpdatePasswordDto) {
     return await this.usersService.updatePassword(updatePasswordDto);
@@ -79,15 +87,15 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: '토큰 재발급' })
-  @ApiBearerAuth('RefreshToken')
+  @ApiBearerAuth('Token')
   @UseGuards(AuthGuard('refresh-token'))
   @Get('access')
-  async accessToken(@User('id') id: number) {
-    return await this.usersService.accessToken(id);
+  async createAccessToken(@User('id') id: number) {
+    return await this.usersService.createAccessToken(id);
   }
 
   @ApiOperation({ summary: '회원탈퇴' })
-  @ApiBearerAuth('AccessToken')
+  @ApiBearerAuth('Token')
   @UseGuards(AuthGuard('access-token'))
   @Put()
   async updateDeletedAt(@User('id') id: number) {

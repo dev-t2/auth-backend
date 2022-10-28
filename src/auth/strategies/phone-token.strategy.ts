@@ -2,16 +2,13 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { ExtractJwt, Strategy } from 'passport-jwt';
 
-import { UsersRepository } from 'src/users/users.repository';
-
 interface IValidate {
   sub: string;
-  authNumber: string;
 }
 
 @Injectable()
-export class AuthTokenStrategy extends PassportStrategy(Strategy, 'auth-token') {
-  constructor(private readonly usersRepository: UsersRepository) {
+export class PhoneTokenStrategy extends PassportStrategy(Strategy, 'phone-token') {
+  constructor() {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
@@ -19,13 +16,11 @@ export class AuthTokenStrategy extends PassportStrategy(Strategy, 'auth-token') 
     });
   }
 
-  async validate({ sub, authNumber }: IValidate) {
-    const user = await this.usersRepository.findUserByPhoneNumber(sub);
-
-    if (user) {
+  async validate({ sub }: IValidate) {
+    if (sub !== 'phone') {
       throw new UnauthorizedException();
     }
 
-    return { authNumber };
+    return {};
   }
 }

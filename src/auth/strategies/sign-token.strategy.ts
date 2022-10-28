@@ -6,11 +6,12 @@ import { UsersRepository } from 'src/users/users.repository';
 
 interface IValidate {
   sub: string;
-  id: number;
+  phoneNumber: string;
+  authNumber: string;
 }
 
 @Injectable()
-export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'refresh-token') {
+export class SignTokenStrategy extends PassportStrategy(Strategy, 'sign-token') {
   constructor(private readonly usersRepository: UsersRepository) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
@@ -19,17 +20,17 @@ export class RefreshTokenStrategy extends PassportStrategy(Strategy, 'refresh-to
     });
   }
 
-  async validate({ sub, id }: IValidate) {
-    if (sub !== 'refresh') {
+  async validate({ sub, phoneNumber, authNumber }: IValidate) {
+    if (sub !== 'sign') {
       throw new UnauthorizedException();
     }
 
-    const user = await this.usersRepository.findUserById(id);
+    const user = await this.usersRepository.findUserByPhoneNumber(phoneNumber);
 
-    if (!user || user?.deletedAt) {
+    if (user) {
       throw new UnauthorizedException();
     }
 
-    return user;
+    return { authNumber };
   }
 }

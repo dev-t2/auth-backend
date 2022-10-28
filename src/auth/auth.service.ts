@@ -49,8 +49,8 @@ export class AuthService {
 
       return {
         authToken: this.jwtService.sign(
-          { sub: phoneNumber, authNumber },
-          { secret: process.env.JWT_SECRET_KEY, expiresIn: '60s' },
+          { sub: 'sign', phoneNumber, authNumber },
+          { secret: process.env.JWT_SECRET_KEY, expiresIn: '5m' },
         ),
       };
     } catch (e) {
@@ -58,6 +58,15 @@ export class AuthService {
 
       throw new InternalServerErrorException();
     }
+  }
+
+  createPhoneToken() {
+    return {
+      phoneToken: this.jwtService.sign(
+        { sub: 'phone' },
+        { secret: process.env.JWT_SECRET_KEY, expiresIn: '5m' },
+      ),
+    };
   }
 
   async signIn({ email, password }: SignInDto) {
@@ -75,14 +84,17 @@ export class AuthService {
 
     return {
       accessToken: this.jwtService.sign(
-        { sub: user.id },
-        { secret: process.env.JWT_SECRET_KEY, expiresIn: '60s' },
+        { sub: 'access', id: user.id },
+        { secret: process.env.JWT_SECRET_KEY, expiresIn: '5m' },
       ),
-      refreshToken: this.jwtService.sign({ sub: user.id }, { secret: process.env.JWT_SECRET_KEY }),
+      refreshToken: this.jwtService.sign(
+        { sub: 'refresh', id: user.id },
+        { secret: process.env.JWT_SECRET_KEY },
+      ),
     };
   }
 
-  async accessToken(id: number) {
+  async createAccessToken(id: number) {
     const user = await this.usersRepository.findUserById(id);
 
     if (!user || user.deletedAt) {
@@ -91,8 +103,8 @@ export class AuthService {
 
     return {
       accessToken: this.jwtService.sign(
-        { sub: user.id },
-        { secret: process.env.ACCESS_SECRET_KEY, expiresIn: '60s' },
+        { sub: 'access', id: user.id },
+        { secret: process.env.JWT_SECRET_KEY, expiresIn: '5m' },
       ),
     };
   }

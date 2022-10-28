@@ -5,7 +5,8 @@ import { ExtractJwt, Strategy } from 'passport-jwt';
 import { UsersRepository } from 'src/users/users.repository';
 
 interface IValidate {
-  sub: number;
+  sub: string;
+  id: number;
 }
 
 @Injectable()
@@ -18,10 +19,14 @@ export class AccessTokenStrategy extends PassportStrategy(Strategy, 'access-toke
     });
   }
 
-  async validate({ sub }: IValidate) {
-    const user = await this.usersRepository.findUserById(sub);
+  async validate({ sub, id }: IValidate) {
+    if (sub !== 'access') {
+      throw new UnauthorizedException();
+    }
 
-    if (!user) {
+    const user = await this.usersRepository.findUserById(id);
+
+    if (!user || user?.deletedAt) {
       throw new UnauthorizedException();
     }
 

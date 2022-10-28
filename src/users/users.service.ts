@@ -65,6 +65,14 @@ export class UsersService {
     return await this.authService.sendAuthMessage(phoneNumber);
   }
 
+  async confirmAuthNumber(authNumber1: string, authNunber2: string) {
+    if (authNumber1 !== authNunber2) {
+      throw new BadRequestException();
+    }
+
+    return await this.authService.createPhoneToken();
+  }
+
   async createUser({
     email,
     nickname,
@@ -97,6 +105,16 @@ export class UsersService {
     );
   }
 
+  async FindPhoneNumber(phoneNumber: string) {
+    const user = await this.usersRepository.findUserByPhoneNumber(phoneNumber);
+
+    if (!user || user.deletedAt) {
+      throw new BadRequestException();
+    }
+
+    return await this.authService.sendAuthMessage(phoneNumber);
+  }
+
   async findEmail({ phoneNumber }: FindEmailDto) {
     const user = await this.usersRepository.findUserByPhoneNumber(phoneNumber);
 
@@ -123,8 +141,8 @@ export class UsersService {
     return await this.authService.signIn(signInDto);
   }
 
-  async accessToken(id: number) {
-    return await this.authService.accessToken(id);
+  async createAccessToken(id: number) {
+    return await this.authService.createAccessToken(id);
   }
 
   async updateDeletedAt(id: number) {
