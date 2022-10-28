@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Post, Put, Query, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -50,8 +50,8 @@ export class UsersController {
 
   @ApiOperation({ summary: '인증번호 확인' })
   @Put('auth')
-  async confirmAuthNumber(@Body() { phoneNumber, authNumber }: ConfirmAuthNumberDto) {
-    return await this.usersService.confirmAuthNumber(phoneNumber, authNumber);
+  async confirmAuthNumber(@Body() confirmAuthNumberDto: ConfirmAuthNumberDto) {
+    return await this.usersService.confirmAuthNumber(confirmAuthNumberDto);
   }
 
   @ApiOperation({ summary: '회원가입' })
@@ -78,10 +78,10 @@ export class UsersController {
     return this.usersService.signIn(signInDto);
   }
 
-  @ApiOperation({ summary: '토큰 재발급' })
+  @ApiOperation({ summary: '액세스 토큰 생성' })
   @ApiBearerAuth('RefreshToken')
   @UseGuards(AuthGuard('refresh'))
-  @Get('access')
+  @Post('access')
   async createAccessToken(@User('id') id: number) {
     return await this.usersService.createAccessToken(id);
   }

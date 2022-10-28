@@ -1,13 +1,27 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  CACHE_MANAGER,
+  Inject,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+import { Cache } from 'cache-manager';
 import bcrypt from 'bcrypt';
 
 import { AuthService } from 'src/auth/auth.service';
 import { UsersRepository } from './users.repository';
-import { CreateUserDto, FindEmailDto, SignInDto, UpdatePasswordDto } from './users.dto';
+import {
+  ConfirmAuthNumberDto,
+  CreateUserDto,
+  FindEmailDto,
+  SignInDto,
+  UpdatePasswordDto,
+} from './users.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
+    @Inject(CACHE_MANAGER) private readonly cache: Cache,
     private readonly authService: AuthService,
     private readonly usersRepository: UsersRepository,
   ) {}
@@ -73,8 +87,8 @@ export class UsersService {
     return await this.authService.sendAuthNumberMessage(phoneNumber);
   }
 
-  async confirmAuthNumber(phoneNumber: string, authNumber: string) {
-    return await this.authService.confirmAuthNumber(phoneNumber, authNumber);
+  async confirmAuthNumber(confirmAuthNumberDto: ConfirmAuthNumberDto) {
+    return await this.authService.confirmAuthNumber(confirmAuthNumberDto);
   }
 
   async createUser({
@@ -86,6 +100,12 @@ export class UsersService {
     isPrivacyTerms,
     isMarketingTerms,
   }: CreateUserDto) {
+    const type = await this.cache.get<string>(phoneNumber);
+
+    if (type !== 'sign') {
+      throw new UnauthorizedException();
+    }
+
     if (!isServiceTerms || !isPrivacyTerms) {
       throw new BadRequestException();
     }
@@ -110,6 +130,12 @@ export class UsersService {
   }
 
   async findEmail({ phoneNumber }: FindEmailDto) {
+    const type = await this.cache.get<string>(phoneNumber);
+
+    if (type !== 'email') {
+      throw new UnauthorizedException();
+    }
+
     const user = await this.usersRepository.findUserByPhoneNumber(phoneNumber);
 
     if (!user || user.deletedAt) {
@@ -120,6 +146,12 @@ export class UsersService {
   }
 
   async updatePassword({ phoneNumber, password }: UpdatePasswordDto) {
+    const type = await this.cache.get<string>(phoneNumber);
+
+    if (type !== 'password') {
+      throw new UnauthorizedException();
+    }
+
     const user = await this.usersRepository.findUserByPhoneNumber(phoneNumber);
 
     if (!user || user.deletedAt) {

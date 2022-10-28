@@ -1,5 +1,5 @@
 import { ApiProperty, PickType } from '@nestjs/swagger';
-import { IsString } from 'class-validator';
+import { IsEnum, IsString } from 'class-validator';
 
 import { User } from './entities/user.entity';
 
@@ -11,10 +11,16 @@ export class ConfirmPhoneNumberDto extends PickType(User, ['phoneNumber'] as con
 
 export class CreateAuthNumberDto extends PickType(User, ['phoneNumber'] as const) {}
 
+export class AuthTypeDto {}
+
 export class ConfirmAuthNumberDto extends PickType(User, ['phoneNumber'] as const) {
   @ApiProperty({ required: true, description: '인증번호' })
   @IsString()
   authNumber: string;
+
+  @ApiProperty({ enum: ['sign', 'email', 'password'], required: true, description: '인증타입' })
+  @IsEnum({ Sign: 'sign', Email: 'email', Password: 'password' })
+  type: 'sign' | 'email' | 'password';
 }
 
 export class CreateUserDto extends PickType(User, [

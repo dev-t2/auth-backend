@@ -10,7 +10,6 @@ import { HttpLoggerMiddleware } from './common/middlewares';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      isGlobal: true,
       validationSchema: Joi.object({
         NODE_ENV: Joi.string()
           .valid('development', 'production', 'test', 'provision')
@@ -25,7 +24,7 @@ import { HttpLoggerMiddleware } from './common/middlewares';
         abortEarly: true,
       },
     }),
-    CacheModule.register({ isGlobal: true, ttl: 300 }),
+    CacheModule.register({ isGlobal: true, ttl: 5 * 60 * 1000 }),
     UsersModule,
     PrismaModule,
     AuthModule,

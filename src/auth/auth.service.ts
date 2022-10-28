@@ -12,7 +12,7 @@ import { Cache } from 'cache-manager';
 import axios from 'axios';
 
 import { UsersRepository } from 'src/users/users.repository';
-import { SignInDto } from 'src/users/users.dto';
+import { ConfirmAuthNumberDto, SignInDto } from 'src/users/users.dto';
 
 @Injectable()
 export class AuthService {
@@ -23,8 +23,6 @@ export class AuthService {
   ) {}
 
   async sendAuthNumberMessage(phoneNumber: string) {
-    await this.cache.del(phoneNumber);
-
     const timestamp = Date.now().toString();
 
     const hmac = crypto.createHmac('sha256', process.env.NAVER_SECRET_KEY);
@@ -59,14 +57,16 @@ export class AuthService {
     }
   }
 
-  async confirmAuthNumber(phoneNumber: string, authNumber: string) {
-    console.log(authNumber);
-
+  async confirmAuthNumber({ type, phoneNumber, authNumber }: ConfirmAuthNumberDto) {
     const cachedAuthNumber = await this.cache.get<string>(phoneNumber);
 
-    console.log(cachedAuthNumber);
+    if (authNumber !== cachedAuthNumber) {
+      throw new UnauthorizedException();
+    }
 
-    return;
+    await this.cache.del(phoneNumber);
+
+    await this.cache.set(phoneNumber, type);
   }
 
   async signIn({ email, password }: SignInDto) {
