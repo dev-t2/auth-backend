@@ -79,7 +79,7 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: '토큰 재발급' })
-  @ApiBearerAuth('Token')
+  @ApiBearerAuth('RefreshToken')
   @UseGuards(AuthGuard('refresh'))
   @Get('access')
   async createAccessToken(@User('id') id: number) {
@@ -87,7 +87,7 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: '회원탈퇴' })
-  @ApiBearerAuth('Token')
+  @ApiBearerAuth('AccessToken')
   @UseGuards(AuthGuard('access'))
   @Delete()
   async updateDeletedAt(@User('id') id: number) {

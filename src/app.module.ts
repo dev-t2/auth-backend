@@ -5,7 +5,7 @@ import Joi from 'joi';
 import { UsersModule } from './users/users.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { AuthModule } from './auth/auth.module';
-import { HttpLoggerMiddleware } from './common/middlewares/http-logger.middleware';
+import { HttpLoggerMiddleware } from './common/middlewares';
 
 @Module({
   imports: [

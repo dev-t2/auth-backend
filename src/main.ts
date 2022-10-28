@@ -4,14 +4,15 @@ import expressBasicAuth from 'express-basic-auth';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 import { AppModule } from './app.module';
-import { TransformInterceptor } from './common/interceptors/transform.interceptor';
-import { HttpExceptionFilter } from './common/filters/http-exception.filter';
+import { TransformInterceptor } from './common/interceptors';
+import { HttpExceptionFilter } from './common/filters';
 import { PrismaService } from './prisma/prisma.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.useGlobalInterceptors(new TransformInterceptor());
+
   app.useGlobalPipes(
     new ValidationPipe({
       disableErrorMessages: process.env.NODE_ENV === 'production',
@@ -20,6 +21,7 @@ async function bootstrap() {
       transform: true,
     }),
   );
+
   app.useGlobalFilters(new HttpExceptionFilter());
 
   app.use(
@@ -34,13 +36,16 @@ async function bootstrap() {
     .setTitle('SMIL API')
     .setDescription('SMIL API Description')
     .setVersion('1.0')
-    .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }, 'Token')
+    .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }, 'AccessToken')
+    .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }, 'RefreshToken')
     .build();
+
   const document = SwaggerModule.createDocument(app, config);
 
   SwaggerModule.setup('docs', app, document);
 
   const prismaService = app.get(PrismaService);
+
   await prismaService.enableShutdownHooks(app);
 
   await app.listen(process.env.PORT);
