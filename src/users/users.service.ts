@@ -106,6 +106,8 @@ export class UsersService {
       throw new UnauthorizedException();
     }
 
+    await this.cache.del(phoneNumber);
+
     if (!isServiceTerms || !isPrivacyTerms) {
       throw new BadRequestException();
     }
@@ -136,6 +138,8 @@ export class UsersService {
       throw new UnauthorizedException();
     }
 
+    await this.cache.del(phoneNumber);
+
     const user = await this.usersRepository.findUserByPhoneNumber(phoneNumber);
 
     if (!user || user.deletedAt) {
@@ -151,6 +155,8 @@ export class UsersService {
     if (type !== 'password') {
       throw new UnauthorizedException();
     }
+
+    await this.cache.del(phoneNumber);
 
     const user = await this.usersRepository.findUserByPhoneNumber(phoneNumber);
 

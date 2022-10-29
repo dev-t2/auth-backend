@@ -6,10 +6,10 @@ import {
   UnauthorizedException,
 } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
+import { HttpService } from '@nestjs/axios';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
 import { Cache } from 'cache-manager';
-import axios from 'axios';
 
 import { UsersRepository } from 'src/users/users.repository';
 import { ConfirmAuthNumberDto, SignInDto } from 'src/users/users.dto';
@@ -18,8 +18,9 @@ import { ConfirmAuthNumberDto, SignInDto } from 'src/users/users.dto';
 export class AuthService {
   constructor(
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
-    private readonly jwtService: JwtService,
+    private readonly httpService: HttpService,
     private readonly usersRepository: UsersRepository,
+    private readonly jwtService: JwtService,
   ) {}
 
   async sendAuthNumberMessage(phoneNumber: string) {
@@ -47,7 +48,7 @@ export class AuthService {
     };
 
     try {
-      await axios.post(url, data, { headers });
+      await this.httpService.axiosRef.post(url, data, { headers });
 
       await this.cache.set(phoneNumber, authNumber);
     } catch (e) {
