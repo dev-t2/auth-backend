@@ -14,6 +14,11 @@ import crypto from 'crypto';
 
 import { UsersRepository } from 'src/users/users.repository';
 
+interface IAuth {
+  authNumber: string;
+  count: number;
+}
+
 @Injectable()
 export class AuthService {
   constructor(
@@ -24,6 +29,12 @@ export class AuthService {
   ) {}
 
   async createAuthMessage(phoneNumber: string) {
+    const cachedAuth = await this.cache.get<IAuth>(phoneNumber);
+
+    if (cachedAuth && cachedAuth.count >= 5) {
+      throw new BadRequestException();
+    }
+
     const url = `https://sens.apigw.ntruss.com/sms/v2/services/${process.env.NAVER_SERVICE_ID}/messages`;
 
     const authNumber = `${Math.floor(Math.random() * 1000000)}`.padStart(6, '0');
@@ -46,7 +57,7 @@ export class AuthService {
     try {
       await this.httpService.axiosRef.post(url, data, { headers });
 
-      await this.cache.set(phoneNumber, authNumber);
+      await this.cache.set(phoneNumber, { authNumber, count: cachedAuth?.count ?? 0 + 1 });
     } catch (e) {
       console.error(e);
 
@@ -55,11 +66,13 @@ export class AuthService {
   }
 
   async confirmAuth(phoneNumber: string, authNumber: string) {
-    const cachedAuthNumber = await this.cache.get<string>(phoneNumber);
+    const cachedAuth = await this.cache.get<IAuth>(phoneNumber);
 
-    if (authNumber !== cachedAuthNumber) {
+    if (authNumber !== cachedAuth?.authNumber) {
       throw new BadRequestException();
     }
+
+    await this.cache.set(phoneNumber, {});
   }
 
   async signIn(email: string, password: string) {
@@ -80,7 +93,7 @@ export class AuthService {
     const secret = process.env.JWT_SECRET_KEY;
 
     return {
-      accessToken: this.jwtService.sign({ sub: 'access', id }, { secret, expiresIn: '10m' }),
+      accessToken: this.jwtService.sign({ sub: 'access', id }, { secret, expiresIn: '5m' }),
       refreshToken: this.jwtService.sign({ sub: 'refresh', id }, { secret }),
     };
   }
@@ -97,7 +110,7 @@ export class AuthService {
     const secret = process.env.JWT_SECRET_KEY;
 
     return {
-      accessToken: this.jwtService.sign({ sub: 'access', id }, { secret, expiresIn: '10m' }),
+      accessToken: this.jwtService.sign({ sub: 'access', id }, { secret, expiresIn: '5m' }),
     };
   }
 }

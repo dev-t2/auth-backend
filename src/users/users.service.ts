@@ -22,8 +22,6 @@ export class UsersService {
     const timeInterval = new Date().getTime() - deletedAt.getTime();
     const isDelete = Math.floor(timeInterval / (24 * 60 * 60 * 1000)) >= 7;
 
-    console.log(Math.floor(timeInterval / (24 * 60 * 60 * 1000)));
-
     if (isDelete) {
       await this.usersRepository.deleteUser(id);
     } else {
@@ -76,7 +74,7 @@ export class UsersService {
     isPrivacyTerms,
     isMarketingTerms,
   }: CreateUserDto) {
-    const isCached = await this.cache.get<string>(phoneNumber);
+    const isCached = await this.cache.get(phoneNumber);
 
     if (!isCached) {
       throw new UnauthorizedException();
@@ -116,7 +114,7 @@ export class UsersService {
   }
 
   async findEmail(phoneNumber: string) {
-    const isCached = await this.cache.get<string>(phoneNumber);
+    const isCached = await this.cache.get(phoneNumber);
 
     if (!isCached) {
       throw new UnauthorizedException();
@@ -134,7 +132,7 @@ export class UsersService {
   }
 
   async updatePassword(phoneNumber: string, password: string) {
-    const isCached = await this.cache.get<string>(phoneNumber);
+    const isCached = await this.cache.get(phoneNumber);
 
     if (!isCached) {
       throw new UnauthorizedException();
