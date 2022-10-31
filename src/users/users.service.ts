@@ -9,7 +9,7 @@ import { Cache } from 'cache-manager';
 import bcrypt from 'bcrypt';
 
 import { UsersRepository } from './users.repository';
-import { CreateUserDto, FindEmailDto, UpdatePasswordDto } from './users.dto';
+import { CreateUserDto } from './users.dto';
 
 @Injectable()
 export class UsersService {
@@ -19,10 +19,8 @@ export class UsersService {
   ) {}
 
   async deleteUser(id: number, deletedAt: Date) {
-    const currentTime = new Date().getTime();
-    const deletedTime = deletedAt.getTime();
-
-    const isDelete = Math.floor((currentTime - deletedTime) / (1000 * 60 * 60 * 24)) >= 7;
+    const timeInterval = new Date().getTime() - deletedAt.getTime();
+    const isDelete = Math.floor(timeInterval / (24 * 60 * 60 * 1000)) >= 7;
 
     if (isDelete) {
       await this.usersRepository.deleteUser(id);
@@ -31,7 +29,7 @@ export class UsersService {
     }
   }
 
-  async confirmEmail(email: string) {
+  async duplicateEmail(email: string) {
     const user = await this.usersRepository.findUserByEmail(email);
 
     if (user) {
@@ -43,7 +41,7 @@ export class UsersService {
     }
   }
 
-  async confirmNickname(nickname: string) {
+  async duplicateNickname(nickname: string) {
     const user = await this.usersRepository.findUserByNickname(nickname);
 
     if (user) {
@@ -55,21 +53,13 @@ export class UsersService {
     }
   }
 
-  async confirmPhoneNumber(isDup: boolean, phoneNumber: string) {
+  async duplicatePhone(phoneNumber: string) {
     const user = await this.usersRepository.findUserByPhoneNumber(phoneNumber);
 
-    if (isDup && user) {
+    if (user) {
       if (user.deletedAt) {
         await this.deleteUser(user.id, user.deletedAt);
       } else {
-        throw new BadRequestException();
-      }
-    }
-
-    if (!isDup && user) {
-      if (user.deletedAt) {
-        await this.deleteUser(user.id, user.deletedAt);
-
         throw new BadRequestException();
       }
     }
@@ -97,25 +87,33 @@ export class UsersService {
     }
 
     await Promise.all([
-      this.confirmEmail(email),
-      this.confirmNickname(nickname),
-      this.confirmPhoneNumber(true, phoneNumber),
+      this.duplicateEmail(email),
+      this.duplicateNickname(nickname),
+      this.duplicatePhone(phoneNumber),
     ]);
 
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    await this.usersRepository.createUser(
+    await this.usersRepository.createUser({
       email,
       nickname,
-      hashedPassword,
+      password: hashedPassword,
       phoneNumber,
       isServiceTerms,
       isPrivacyTerms,
       isMarketingTerms,
-    );
+    });
   }
 
-  async findEmail({ phoneNumber }: FindEmailDto) {
+  async findPhone(phoneNumber: string) {
+    const user = await this.usersRepository.findUserByPhoneNumber(phoneNumber);
+
+    if (!user || user.deletedAt) {
+      throw new BadRequestException();
+    }
+  }
+
+  async findEmail(phoneNumber: string) {
     const isCached = await this.cache.get<string>(phoneNumber);
 
     if (!isCached) {
@@ -133,7 +131,7 @@ export class UsersService {
     return { email: user.email };
   }
 
-  async updatePassword({ phoneNumber, password }: UpdatePasswordDto) {
+  async updatePassword(phoneNumber: string, password: string) {
     const isCached = await this.cache.get<string>(phoneNumber);
 
     if (!isCached) {

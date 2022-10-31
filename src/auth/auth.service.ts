@@ -5,14 +5,13 @@ import {
   InternalServerErrorException,
   UnauthorizedException,
 } from '@nestjs/common';
-import { JwtService } from '@nestjs/jwt';
+import { Cache } from 'cache-manager';
 import { HttpService } from '@nestjs/axios';
+import { JwtService } from '@nestjs/jwt';
 import bcrypt from 'bcrypt';
 import crypto from 'crypto';
-import { Cache } from 'cache-manager';
 
 import { UsersRepository } from 'src/users/users.repository';
-import { ConfirmAuthNumberDto, SignInDto } from 'src/users/users.dto';
 
 @Injectable()
 export class AuthService {
@@ -23,22 +22,18 @@ export class AuthService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async sendAuthNumberMessage(phoneNumber: string) {
-    const timestamp = Date.now().toString();
-
-    const hmac = crypto.createHmac('sha256', process.env.NAVER_SECRET_KEY);
-
-    const message = `POST /sms/v2/services/${process.env.NAVER_SERVICE_ID}/messages\n${timestamp}\n${process.env.NAVER_ACCESS_KEY}`;
-
-    const signature = hmac.update(message).digest('base64');
-
+  async createAuthMessage(phoneNumber: string) {
     const url = `https://sens.apigw.ntruss.com/sms/v2/services/${process.env.NAVER_SERVICE_ID}/messages`;
 
     const authNumber = `${Math.floor(Math.random() * 1000000)}`.padStart(6, '0');
-
     const content = `[SMIL] 인증번호: ${authNumber}\n인증번호를 입력해 주세요.`;
-
     const data = { type: 'SMS', from: '01041894224', content, messages: [{ to: phoneNumber }] };
+
+    const timestamp = Date.now().toString();
+
+    const hmac = crypto.createHmac('sha256', process.env.NAVER_SECRET_KEY);
+    const message = `POST /sms/v2/services/${process.env.NAVER_SERVICE_ID}/messages\n${timestamp}\n${process.env.NAVER_ACCESS_KEY}`;
+    const signature = hmac.update(message).digest('base64');
 
     const headers = {
       'Content-Type': 'application/json; charset=utf-8',
@@ -58,7 +53,7 @@ export class AuthService {
     }
   }
 
-  async confirmAuthNumber({ phoneNumber, authNumber }: ConfirmAuthNumberDto) {
+  async confirmAuth(phoneNumber: string, authNumber: string) {
     const cachedAuthNumber = await this.cache.get<string>(phoneNumber);
 
     if (authNumber !== cachedAuthNumber) {
@@ -66,7 +61,7 @@ export class AuthService {
     }
   }
 
-  async signIn({ email, password }: SignInDto) {
+  async signIn(email: string, password: string) {
     const user = await this.usersRepository.findUserByEmail(email);
 
     if (!user || user.deletedAt) {
@@ -82,7 +77,7 @@ export class AuthService {
     return {
       accessToken: this.jwtService.sign(
         { sub: 'access', id: user.id },
-        { secret: process.env.JWT_SECRET_KEY, expiresIn: '5m' },
+        { secret: process.env.JWT_SECRET_KEY, expiresIn: '10m' },
       ),
       refreshToken: this.jwtService.sign(
         { sub: 'refresh', id: user.id },
@@ -101,7 +96,7 @@ export class AuthService {
     return {
       accessToken: this.jwtService.sign(
         { sub: 'access', id: user.id },
-        { secret: process.env.JWT_SECRET_KEY, expiresIn: '5m' },
+        { secret: process.env.JWT_SECRET_KEY, expiresIn: '10m' },
       ),
     };
   }

@@ -1,6 +1,7 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 
 import { PrismaService } from 'src/prisma/prisma.service';
+import { CreateUserDto } from './users.dto';
 
 @Injectable()
 export class UsersRepository {
@@ -11,6 +12,18 @@ export class UsersRepository {
       return await this.prismaService.user.findUnique({
         where: { email },
         select: { id: true, password: true, deletedAt: true },
+      });
+    } catch (e) {
+      console.error(e);
+
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async deleteUser(id: number) {
+    try {
+      await this.prismaService.user.delete({
+        where: { id },
       });
     } catch (e) {
       console.error(e);
@@ -45,39 +58,10 @@ export class UsersRepository {
     }
   }
 
-  async findUserById(id: number) {
-    try {
-      return await this.prismaService.user.findUnique({
-        where: { id },
-        select: { id: true, deletedAt: true },
-      });
-    } catch (e) {
-      console.error(e);
-
-      throw new InternalServerErrorException();
-    }
-  }
-
-  async createUser(
-    email: string,
-    nickname: string,
-    password: string,
-    phoneNumber: string,
-    isServiceTerms: boolean,
-    isPrivacyTerms: boolean,
-    isMarketingTerms: boolean,
-  ) {
+  async createUser(createUserDto: CreateUserDto) {
     try {
       return await this.prismaService.user.create({
-        data: {
-          email,
-          nickname,
-          password,
-          phoneNumber,
-          isServiceTerms,
-          isPrivacyTerms,
-          isMarketingTerms,
-        },
+        data: createUserDto,
         select: { id: true },
       });
     } catch (e) {
@@ -100,11 +84,11 @@ export class UsersRepository {
     }
   }
 
-  async updateDeletedAt(id: number) {
+  async findUserById(id: number) {
     try {
-      await this.prismaService.user.update({
+      return await this.prismaService.user.findUnique({
         where: { id },
-        data: { deletedAt: new Date() },
+        select: { id: true, deletedAt: true },
       });
     } catch (e) {
       console.error(e);
@@ -113,10 +97,11 @@ export class UsersRepository {
     }
   }
 
-  async deleteUser(id: number) {
+  async updateDeletedAt(id: number) {
     try {
-      await this.prismaService.user.delete({
+      await this.prismaService.user.update({
         where: { id },
+        data: { deletedAt: new Date() },
       });
     } catch (e) {
       console.error(e);

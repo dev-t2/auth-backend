@@ -3,17 +3,13 @@ import { IsString } from 'class-validator';
 
 import { User } from './entities/user.entity';
 
-export class ConfirmEmailDto extends PickType(User, ['email'] as const) {}
+export class DuplicateEmailDto extends PickType(User, ['email'] as const) {}
 
-export class ConfirmNicknameDto extends PickType(User, ['nickname'] as const) {}
+export class DuplicateNicknameDto extends PickType(User, ['nickname'] as const) {}
 
-export class ConfirmPhoneNumberDto extends PickType(User, ['phoneNumber'] as const) {}
+export class PhoneNumberDto extends PickType(User, ['phoneNumber'] as const) {}
 
-export class CreateAuthNumberDto extends PickType(User, ['phoneNumber'] as const) {}
-
-export class AuthTypeDto {}
-
-export class ConfirmAuthNumberDto extends PickType(User, ['phoneNumber'] as const) {
+export class ConfirmAuthDto extends PhoneNumberDto {
   @ApiProperty({ required: true, description: '인증번호' })
   @IsString()
   authNumber: string;
@@ -28,8 +24,6 @@ export class CreateUserDto extends PickType(User, [
   'isPrivacyTerms',
   'isMarketingTerms',
 ] as const) {}
-
-export class FindEmailDto extends PickType(User, ['phoneNumber'] as const) {}
 
 export class UpdatePasswordDto extends PickType(User, ['phoneNumber', 'password'] as const) {}
 

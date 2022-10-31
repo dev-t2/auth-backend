@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Post, Put, Query, UseGuards } from '@nestjs/common';
+import { Body, Controller, Post, Put, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -6,18 +6,16 @@ import { User } from 'src/auth/decorators';
 import { UsersService } from './users.service';
 import { AuthService } from 'src/auth/auth.service';
 import {
-  ConfirmAuthNumberDto,
-  ConfirmEmailDto,
-  ConfirmNicknameDto,
-  ConfirmPhoneNumberDto,
-  CreateAuthNumberDto,
+  ConfirmAuthDto,
   CreateUserDto,
-  FindEmailDto,
+  DuplicateEmailDto,
+  DuplicateNicknameDto,
+  PhoneNumberDto,
   SignInDto,
   UpdatePasswordDto,
 } from './users.dto';
 
-@ApiTags('USERS')
+@ApiTags('Users')
 @Controller('users')
 export class UsersController {
   constructor(
@@ -26,36 +24,33 @@ export class UsersController {
   ) {}
 
   @ApiOperation({ summary: '이메일 중복 확인' })
-  @Post('email')
-  async confirmEmail(@Body() { email }: ConfirmEmailDto) {
-    return await this.usersService.confirmEmail(email);
+  @Post('email/duplication')
+  async duplicateEmail(@Body() { email }: DuplicateEmailDto) {
+    return await this.usersService.duplicateEmail(email);
   }
 
   @ApiOperation({ summary: '닉네임 중복 확인' })
-  @Post('nickname')
-  async confirmNickname(@Body() { nickname }: ConfirmNicknameDto) {
-    return await this.usersService.confirmNickname(nickname);
+  @Post('nickname/duplication')
+  async duplicateNickname(@Body() { nickname }: DuplicateNicknameDto) {
+    return await this.usersService.duplicateNickname(nickname);
   }
 
-  @ApiOperation({ summary: '전화번호 확인' })
-  @Post('phoneNumber')
-  async confirmPhoneNumber(
-    @Query('isDup') isDup: boolean,
-    @Body() { phoneNumber }: ConfirmPhoneNumberDto,
-  ) {
-    return await this.usersService.confirmPhoneNumber(isDup, phoneNumber);
+  @ApiOperation({ summary: '전화번호 중복 확인' })
+  @Post('phone/duplication')
+  async duplicatePhone(@Body() { phoneNumber }: PhoneNumberDto) {
+    return await this.usersService.duplicatePhone(phoneNumber);
   }
 
   @ApiOperation({ summary: '인증번호 전송' })
-  @Post('authNumber')
-  async createAuthNumber(@Body() { phoneNumber }: CreateAuthNumberDto) {
-    return await this.authService.sendAuthNumberMessage(phoneNumber);
+  @Post('auth/message')
+  async createAuthMessage(@Body() { phoneNumber }: PhoneNumberDto) {
+    return await this.authService.createAuthMessage(phoneNumber);
   }
 
   @ApiOperation({ summary: '인증번호 확인' })
-  @Put('authNumber')
-  async confirmAuthNumber(@Body() confirmAuthNumberDto: ConfirmAuthNumberDto) {
-    return await this.authService.confirmAuthNumber(confirmAuthNumberDto);
+  @Post('auth')
+  async confirmAuth(@Body() { phoneNumber, authNumber }: ConfirmAuthDto) {
+    return await this.authService.confirmAuth(phoneNumber, authNumber);
   }
 
   @ApiOperation({ summary: '회원 가입' })
@@ -64,28 +59,34 @@ export class UsersController {
     return await this.usersService.createUser(createUserDto);
   }
 
-  @ApiOperation({ summary: '이메일 찾기' })
-  @Put('email')
-  async findEmail(@Body() findEmailDto: FindEmailDto) {
-    return await this.usersService.findEmail(findEmailDto);
+  @ApiOperation({ summary: '전화번호 확인' })
+  @Post('phone')
+  async findPhone(@Body() { phoneNumber }: PhoneNumberDto) {
+    return this.usersService.findPhone(phoneNumber);
+  }
+
+  @ApiOperation({ summary: '이메일 확인' })
+  @Post('email')
+  async findEmail(@Body() { phoneNumber }: PhoneNumberDto) {
+    return await this.usersService.findEmail(phoneNumber);
   }
 
   @ApiOperation({ summary: '비밀번호 변경' })
   @Put('password')
-  async updatePassword(@Body() updatePasswordDto: UpdatePasswordDto) {
-    return await this.usersService.updatePassword(updatePasswordDto);
+  async updatePassword(@Body() { phoneNumber, password }: UpdatePasswordDto) {
+    return await this.usersService.updatePassword(phoneNumber, password);
   }
 
   @ApiOperation({ summary: '로그인' })
-  @Post('signIn')
-  async signIn(@Body() signInDto: SignInDto) {
-    return await this.authService.signIn(signInDto);
+  @Post('sign')
+  async signIn(@Body() { email, password }: SignInDto) {
+    return await this.authService.signIn(email, password);
   }
 
   @ApiOperation({ summary: '토큰 생성' })
   @ApiBearerAuth('RefreshToken')
   @UseGuards(AuthGuard('refresh'))
-  @Post('accessToken')
+  @Post('access')
   async createAccessToken(@User('id') id: number) {
     return await this.authService.createAccessToken(id);
   }
@@ -93,7 +94,7 @@ export class UsersController {
   @ApiOperation({ summary: '회원 탈퇴' })
   @ApiBearerAuth('AccessToken')
   @UseGuards(AuthGuard('access'))
-  @Delete()
+  @Put()
   async updateDeletedAt(@User('id') id: number) {
     return this.usersService.updateDeletedAt(id);
   }
