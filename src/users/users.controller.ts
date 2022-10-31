@@ -25,13 +25,13 @@ export class UsersController {
     private readonly authService: AuthService,
   ) {}
 
-  @ApiOperation({ summary: '이메일 확인' })
+  @ApiOperation({ summary: '이메일 중복 확인' })
   @Post('email')
   async confirmEmail(@Body() { email }: ConfirmEmailDto) {
     return await this.usersService.confirmEmail(email);
   }
 
-  @ApiOperation({ summary: '닉네임 확인' })
+  @ApiOperation({ summary: '닉네임 중복 확인' })
   @Post('nickname')
   async confirmNickname(@Body() { nickname }: ConfirmNicknameDto) {
     return await this.usersService.confirmNickname(nickname);
