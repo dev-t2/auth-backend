@@ -1,4 +1,4 @@
-import { Body, Controller, Post, Put, UseGuards } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Post, Put, UseGuards } from '@nestjs/common';
 import { ApiBearerAuth, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { AuthGuard } from '@nestjs/passport';
 
@@ -65,7 +65,7 @@ export class UsersController {
     return this.usersService.findPhone(phoneNumber);
   }
 
-  @ApiOperation({ summary: '이메일 확인' })
+  @ApiOperation({ summary: '이메일 찾기' })
   @Post('email')
   async findEmail(@Body() { phoneNumber }: PhoneNumberDto) {
     return await this.usersService.findEmail(phoneNumber);
@@ -83,18 +83,26 @@ export class UsersController {
     return await this.authService.signIn(email, password);
   }
 
-  @ApiOperation({ summary: '토큰 생성' })
+  @ApiOperation({ summary: '토큰 재발급' })
   @ApiBearerAuth('RefreshToken')
   @UseGuards(AuthGuard('refresh'))
-  @Post('access')
+  @Get('access')
   async createAccessToken(@User('id') id: number) {
     return await this.authService.createAccessToken(id);
+  }
+
+  @ApiOperation({ summary: '로그아웃' })
+  @ApiBearerAuth('AccessToken')
+  @UseGuards(AuthGuard('access'))
+  @Delete('sign')
+  async signOut() {
+    return;
   }
 
   @ApiOperation({ summary: '회원 탈퇴' })
   @ApiBearerAuth('AccessToken')
   @UseGuards(AuthGuard('access'))
-  @Put()
+  @Delete()
   async updateDeletedAt(@User('id') id: number) {
     return this.usersService.updateDeletedAt(id);
   }

@@ -22,6 +22,8 @@ export class UsersService {
     const timeInterval = new Date().getTime() - deletedAt.getTime();
     const isDelete = Math.floor(timeInterval / (24 * 60 * 60 * 1000)) >= 7;
 
+    console.log(Math.floor(timeInterval / (24 * 60 * 60 * 1000)));
+
     if (isDelete) {
       await this.usersRepository.deleteUser(id);
     } else {

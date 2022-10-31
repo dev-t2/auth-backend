@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   CACHE_MANAGER,
   Inject,
   Injectable,
@@ -57,7 +58,7 @@ export class AuthService {
     const cachedAuthNumber = await this.cache.get<string>(phoneNumber);
 
     if (authNumber !== cachedAuthNumber) {
-      throw new UnauthorizedException();
+      throw new BadRequestException();
     }
   }
 
@@ -74,15 +75,13 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
+    const { id } = await this.usersRepository.updateUpdatedAt(user.id);
+
+    const secret = process.env.JWT_SECRET_KEY;
+
     return {
-      accessToken: this.jwtService.sign(
-        { sub: 'access', id: user.id },
-        { secret: process.env.JWT_SECRET_KEY, expiresIn: '10m' },
-      ),
-      refreshToken: this.jwtService.sign(
-        { sub: 'refresh', id: user.id },
-        { secret: process.env.JWT_SECRET_KEY },
-      ),
+      accessToken: this.jwtService.sign({ sub: 'access', id }, { secret, expiresIn: '10m' }),
+      refreshToken: this.jwtService.sign({ sub: 'refresh', id }, { secret }),
     };
   }
 
@@ -93,11 +92,12 @@ export class AuthService {
       throw new UnauthorizedException();
     }
 
+    await this.usersRepository.updateUpdatedAt(id);
+
+    const secret = process.env.JWT_SECRET_KEY;
+
     return {
-      accessToken: this.jwtService.sign(
-        { sub: 'access', id: user.id },
-        { secret: process.env.JWT_SECRET_KEY, expiresIn: '10m' },
-      ),
+      accessToken: this.jwtService.sign({ sub: 'access', id }, { secret, expiresIn: '10m' }),
     };
   }
 }
