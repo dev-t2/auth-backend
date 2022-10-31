@@ -8,21 +8,13 @@ import {
 import { Cache } from 'cache-manager';
 import bcrypt from 'bcrypt';
 
-import { AuthService } from 'src/auth/auth.service';
 import { UsersRepository } from './users.repository';
-import {
-  ConfirmAuthNumberDto,
-  CreateUserDto,
-  FindEmailDto,
-  SignInDto,
-  UpdatePasswordDto,
-} from './users.dto';
+import { CreateUserDto, FindEmailDto, UpdatePasswordDto } from './users.dto';
 
 @Injectable()
 export class UsersService {
   constructor(
     @Inject(CACHE_MANAGER) private readonly cache: Cache,
-    private readonly authService: AuthService,
     private readonly usersRepository: UsersRepository,
   ) {}
 
@@ -81,14 +73,6 @@ export class UsersService {
         throw new BadRequestException();
       }
     }
-  }
-
-  async createAuthNumber(phoneNumber: string) {
-    return await this.authService.sendAuthNumberMessage(phoneNumber);
-  }
-
-  async confirmAuthNumber(confirmAuthNumberDto: ConfirmAuthNumberDto) {
-    return await this.authService.confirmAuthNumber(confirmAuthNumberDto);
   }
 
   async createUser({
@@ -167,14 +151,6 @@ export class UsersService {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     await this.usersRepository.updatePassword(hashedPassword, phoneNumber);
-  }
-
-  async signIn(signInDto: SignInDto) {
-    return await this.authService.signIn(signInDto);
-  }
-
-  async createAccessToken(id: number) {
-    return await this.authService.createAccessToken(id);
   }
 
   async updateDeletedAt(id: number) {

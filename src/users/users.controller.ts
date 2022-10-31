@@ -4,6 +4,7 @@ import { AuthGuard } from '@nestjs/passport';
 
 import { User } from 'src/auth/decorators';
 import { UsersService } from './users.service';
+import { AuthService } from 'src/auth/auth.service';
 import {
   ConfirmAuthNumberDto,
   ConfirmEmailDto,
@@ -16,10 +17,13 @@ import {
   UpdatePasswordDto,
 } from './users.dto';
 
-@ApiTags('USER')
+@ApiTags('USERS')
 @Controller('users')
 export class UsersController {
-  constructor(private readonly usersService: UsersService) {}
+  constructor(
+    private readonly usersService: UsersService,
+    private readonly authService: AuthService,
+  ) {}
 
   @ApiOperation({ summary: '이메일 중복 확인' })
   @Post('email')
@@ -45,13 +49,13 @@ export class UsersController {
   @ApiOperation({ summary: '인증번호 전송' })
   @Post('auth')
   async createAuthNumber(@Body() { phoneNumber }: CreateAuthNumberDto) {
-    return await this.usersService.createAuthNumber(phoneNumber);
+    return await this.authService.sendAuthNumberMessage(phoneNumber);
   }
 
   @ApiOperation({ summary: '인증번호 확인' })
   @Put('auth')
   async confirmAuthNumber(@Body() confirmAuthNumberDto: ConfirmAuthNumberDto) {
-    return await this.usersService.confirmAuthNumber(confirmAuthNumberDto);
+    return await this.authService.confirmAuthNumber(confirmAuthNumberDto);
   }
 
   @ApiOperation({ summary: '회원가입' })
@@ -75,7 +79,7 @@ export class UsersController {
   @ApiOperation({ summary: '로그인' })
   @Post('sign')
   async signIn(@Body() signInDto: SignInDto) {
-    return this.usersService.signIn(signInDto);
+    return await this.authService.signIn(signInDto);
   }
 
   @ApiOperation({ summary: '액세스 토큰 생성' })
@@ -83,7 +87,7 @@ export class UsersController {
   @UseGuards(AuthGuard('refresh'))
   @Post('access')
   async createAccessToken(@User('id') id: number) {
-    return await this.usersService.createAccessToken(id);
+    return await this.authService.createAccessToken(id);
   }
 
   @ApiOperation({ summary: '회원탈퇴' })
