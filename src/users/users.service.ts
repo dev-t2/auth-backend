@@ -84,9 +84,9 @@ export class UsersService {
     isPrivacyTerms,
     isMarketingTerms,
   }: CreateUserDto) {
-    const type = await this.cache.get<string>(phoneNumber);
+    const isCached = await this.cache.get<string>(phoneNumber);
 
-    if (type !== 'sign') {
+    if (!isCached) {
       throw new UnauthorizedException();
     }
 
@@ -116,9 +116,9 @@ export class UsersService {
   }
 
   async findEmail({ phoneNumber }: FindEmailDto) {
-    const type = await this.cache.get<string>(phoneNumber);
+    const isCached = await this.cache.get<string>(phoneNumber);
 
-    if (type !== 'email') {
+    if (!isCached) {
       throw new UnauthorizedException();
     }
 
@@ -134,9 +134,9 @@ export class UsersService {
   }
 
   async updatePassword({ phoneNumber, password }: UpdatePasswordDto) {
-    const type = await this.cache.get<string>(phoneNumber);
+    const isCached = await this.cache.get<string>(phoneNumber);
 
-    if (type !== 'password') {
+    if (!isCached) {
       throw new UnauthorizedException();
     }
 

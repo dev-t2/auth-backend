@@ -25,20 +25,20 @@ export class UsersController {
     private readonly authService: AuthService,
   ) {}
 
-  @ApiOperation({ summary: '이메일 중복 확인' })
+  @ApiOperation({ summary: '이메일 확인' })
   @Post('email')
   async confirmEmail(@Body() { email }: ConfirmEmailDto) {
     return await this.usersService.confirmEmail(email);
   }
 
-  @ApiOperation({ summary: '닉네임 중복 확인' })
+  @ApiOperation({ summary: '닉네임 확인' })
   @Post('nickname')
   async confirmNickname(@Body() { nickname }: ConfirmNicknameDto) {
     return await this.usersService.confirmNickname(nickname);
   }
 
   @ApiOperation({ summary: '전화번호 확인' })
-  @Post('phone')
+  @Post('phoneNumber')
   async confirmPhoneNumber(
     @Query('isDup') isDup: boolean,
     @Body() { phoneNumber }: ConfirmPhoneNumberDto,
@@ -47,18 +47,18 @@ export class UsersController {
   }
 
   @ApiOperation({ summary: '인증번호 전송' })
-  @Post('auth')
+  @Post('authNumber')
   async createAuthNumber(@Body() { phoneNumber }: CreateAuthNumberDto) {
     return await this.authService.sendAuthNumberMessage(phoneNumber);
   }
 
   @ApiOperation({ summary: '인증번호 확인' })
-  @Put('auth')
+  @Put('authNumber')
   async confirmAuthNumber(@Body() confirmAuthNumberDto: ConfirmAuthNumberDto) {
     return await this.authService.confirmAuthNumber(confirmAuthNumberDto);
   }
 
-  @ApiOperation({ summary: '회원가입' })
+  @ApiOperation({ summary: '회원 가입' })
   @Post()
   async createUser(@Body() createUserDto: CreateUserDto) {
     return await this.usersService.createUser(createUserDto);
@@ -70,27 +70,27 @@ export class UsersController {
     return await this.usersService.findEmail(findEmailDto);
   }
 
-  @ApiOperation({ summary: '비밀번호 재설정' })
+  @ApiOperation({ summary: '비밀번호 변경' })
   @Put('password')
   async updatePassword(@Body() updatePasswordDto: UpdatePasswordDto) {
     return await this.usersService.updatePassword(updatePasswordDto);
   }
 
   @ApiOperation({ summary: '로그인' })
-  @Post('sign')
+  @Post('signIn')
   async signIn(@Body() signInDto: SignInDto) {
     return await this.authService.signIn(signInDto);
   }
 
-  @ApiOperation({ summary: '액세스 토큰 생성' })
+  @ApiOperation({ summary: '토큰 생성' })
   @ApiBearerAuth('RefreshToken')
   @UseGuards(AuthGuard('refresh'))
-  @Post('access')
+  @Post('accessToken')
   async createAccessToken(@User('id') id: number) {
     return await this.authService.createAccessToken(id);
   }
 
-  @ApiOperation({ summary: '회원탈퇴' })
+  @ApiOperation({ summary: '회원 탈퇴' })
   @ApiBearerAuth('AccessToken')
   @UseGuards(AuthGuard('access'))
   @Delete()

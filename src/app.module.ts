@@ -24,7 +24,7 @@ import { HttpLoggerMiddleware } from './common/middlewares';
         abortEarly: true,
       },
     }),
-    CacheModule.register({ isGlobal: true, ttl: 5 * 60 * 1000 }),
+    CacheModule.register({ isGlobal: true, ttl: 10 * 60 * 1000 }),
     UsersModule,
     PrismaModule,
     AuthModule,

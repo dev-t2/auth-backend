@@ -58,16 +58,12 @@ export class AuthService {
     }
   }
 
-  async confirmAuthNumber({ type, phoneNumber, authNumber }: ConfirmAuthNumberDto) {
+  async confirmAuthNumber({ phoneNumber, authNumber }: ConfirmAuthNumberDto) {
     const cachedAuthNumber = await this.cache.get<string>(phoneNumber);
 
     if (authNumber !== cachedAuthNumber) {
       throw new UnauthorizedException();
     }
-
-    await this.cache.del(phoneNumber);
-
-    await this.cache.set(phoneNumber, type);
   }
 
   async signIn({ email, password }: SignInDto) {
