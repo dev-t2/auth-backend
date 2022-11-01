@@ -18,9 +18,7 @@ export class HttpLoggerMiddleware implements NestMiddleware {
 
       let message = '';
 
-      if (process.env.NODE_ENV !== 'production') {
-        message = `${req.method} ${req.originalUrl} ${res.statusCode} - ${contentLength} \x1b[33m+${responseTime}ms`;
-      } else {
+      if (process.env.NODE_ENV === 'production') {
         const userId = req.user?.id;
         const formattedUserId = userId ? ` ${userId} ` : ' ';
         const referrer = req.header('Referer') || req.header('Referrer');
@@ -28,6 +26,8 @@ export class HttpLoggerMiddleware implements NestMiddleware {
         const userAgent = req.header('user-agent');
 
         message = `${req.ip} -${formattedUserId}"${req.method} ${req.originalUrl} HTTP/${req.httpVersion}" ${res.statusCode} - ${contentLength}${formattedReferrer}"${userAgent}" \x1b[33m+${responseTime}ms`;
+      } else {
+        message = `${req.method} ${req.originalUrl} ${res.statusCode} - ${contentLength} \x1b[33m+${responseTime}ms`;
       }
 
       if (res.statusCode >= 400) {

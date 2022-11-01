@@ -1,7 +1,8 @@
 import { NestFactory } from '@nestjs/core';
 import { ValidationPipe } from '@nestjs/common';
-import expressBasicAuth from 'express-basic-auth';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
+import helmet from 'helmet';
+import expressBasicAuth from 'express-basic-auth';
 
 import { AppModule } from './app.module';
 import { TransformInterceptor } from './common/interceptors';
@@ -23,6 +24,16 @@ async function bootstrap() {
   );
 
   app.useGlobalFilters(new HttpExceptionFilter());
+
+  if (process.env.NODE_ENV === 'production') {
+    app.enableCors({ origin: [] });
+
+    app.use(helmet());
+  } else {
+    app.enableCors({ origin: true });
+
+    app.use(helmet());
+  }
 
   app.use(
     ['/docs', '/docs-json'],
