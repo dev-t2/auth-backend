@@ -13,5 +13,6 @@ declare namespace NodeJS {
     NAVER_ACCESS_KEY: string;
     NAVER_SECRET_KEY: string;
     NAVER_SERVICE_ID: string;
+    NAVER_PHONE_NUMBER: string;
   }
 }

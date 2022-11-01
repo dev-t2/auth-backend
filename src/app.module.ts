@@ -19,6 +19,10 @@ import { HttpLoggerMiddleware } from './common/middlewares';
         ADMIN_NAME: Joi.string().required(),
         ADMIN_PASSWORD: Joi.string().required(),
         JWT_SECRET_KEY: Joi.string().required(),
+        NAVER_ACCESS_KEY: Joi.string().required(),
+        NAVER_SECRET_KEY: Joi.string().required(),
+        NAVER_SERVICE_ID: Joi.string().required(),
+        NAVER_PHONE_NUMBER: Joi.number().required(),
       }),
       validationOptions: {
         abortEarly: true,
