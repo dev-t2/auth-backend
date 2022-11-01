@@ -29,17 +29,22 @@ export class AuthService {
   ) {}
 
   async createAuthMessage(phoneNumber: string) {
-    const cachedAuth = await this.cache.get<IAuth>(phoneNumber);
+    const cachedAuthData = await this.cache.get<IAuth>(phoneNumber);
 
-    if (cachedAuth && cachedAuth.count >= 5) {
-      throw new BadRequestException();
+    if (cachedAuthData && cachedAuthData.count >= 5) {
+      throw new UnauthorizedException();
     }
 
     const url = `https://sens.apigw.ntruss.com/sms/v2/services/${process.env.NAVER_SERVICE_ID}/messages`;
 
     const authNumber = `${Math.floor(Math.random() * 1000000)}`.padStart(6, '0');
     const content = `인증번호: ${authNumber}\n인증번호를 입력해 주세요.`;
-    const data = { type: 'SMS', from: '01041894224', content, messages: [{ to: phoneNumber }] };
+    const data = {
+      type: 'SMS',
+      from: process.env.NAVER_PHONE_NUMBER,
+      content,
+      messages: [{ to: phoneNumber }],
+    };
 
     const timestamp = Date.now().toString();
 
@@ -57,7 +62,7 @@ export class AuthService {
     try {
       await this.httpService.axiosRef.post(url, data, { headers });
 
-      await this.cache.set(phoneNumber, { authNumber, count: cachedAuth?.count ?? 0 + 1 });
+      await this.cache.set(phoneNumber, { authNumber, count: (cachedAuthData?.count ?? 0) + 1 });
     } catch (e) {
       console.error(e);
 
@@ -66,9 +71,9 @@ export class AuthService {
   }
 
   async confirmAuth(phoneNumber: string, authNumber: string) {
-    const cachedAuth = await this.cache.get<IAuth>(phoneNumber);
+    const cachedAuthData = await this.cache.get<IAuth>(phoneNumber);
 
-    if (authNumber !== cachedAuth?.authNumber) {
+    if (authNumber !== cachedAuthData?.authNumber) {
       throw new BadRequestException();
     }
 
