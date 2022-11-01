@@ -1,6 +1,6 @@
 /*
   Available built-in HTTP exceptions
-  - External: BadRequestException 400 / ImATeapotException 418
+  - External: BadRequestException 400 / NotFoundException 404 / ImATeapotException 418
   - Authentication: UnauthorizedException 401
   - Authorization: ForbiddenException 403
   - Internal: InternalServerErrorException 500
