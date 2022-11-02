@@ -13,22 +13,15 @@ export class HttpLoggerMiddleware implements NestMiddleware {
     const startTime = Date.now();
 
     res.on('finish', () => {
+      const userIp = req.ips.length ? req.ips[0] : req.ip;
+      const userId = req.user?.id ? ` ${req.user?.id} ` : ' ';
       const contentLength = res.getHeader('content-length') || 0;
+      const referrer = req.header('Referer') || req.header('Referrer');
+      const formattedReferrer = referrer ? ` "${referrer}" ` : ' ';
+      const userAgent = req.header('user-agent');
       const responseTime = Date.now() - startTime;
 
-      let message = '';
-
-      if (process.env.NODE_ENV === 'production') {
-        const userId = req.user?.id;
-        const formattedUserId = userId ? ` ${userId} ` : ' ';
-        const referrer = req.header('Referer') || req.header('Referrer');
-        const formattedReferrer = referrer ? ` "${referrer}" ` : ' ';
-        const userAgent = req.header('user-agent');
-
-        message = `${req.ip} -${formattedUserId}"${req.method} ${req.originalUrl} HTTP/${req.httpVersion}" ${res.statusCode} - ${contentLength}${formattedReferrer}"${userAgent}" \x1b[33m+${responseTime}ms`;
-      } else {
-        message = `${req.method} ${req.originalUrl} ${res.statusCode} - ${contentLength} \x1b[33m+${responseTime}ms`;
-      }
+      const message = `${userIp} -${userId}"${req.method} ${req.originalUrl} HTTP/${req.httpVersion}" ${res.statusCode} - ${contentLength}${formattedReferrer}"${userAgent}" \x1b[33m+${responseTime}ms`;
 
       if (res.statusCode >= 400) {
         this.logger.error(message);

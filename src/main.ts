@@ -31,8 +31,6 @@ async function bootstrap() {
     app.use(helmet());
   } else {
     app.enableCors({ origin: true });
-
-    app.use(helmet());
   }
 
   app.use(
