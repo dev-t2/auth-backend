@@ -1,10 +1,4 @@
-import {
-  BadRequestException,
-  CACHE_MANAGER,
-  Inject,
-  Injectable,
-  UnauthorizedException,
-} from '@nestjs/common';
+import { BadRequestException, CACHE_MANAGER, Inject, Injectable } from '@nestjs/common';
 import { Cache } from 'cache-manager';
 import bcrypt from 'bcrypt';
 
@@ -74,14 +68,6 @@ export class UsersService {
     isPrivacyTerms,
     isMarketingTerms,
   }: CreateUserDto) {
-    const isCached = await this.cache.get(phoneNumber);
-
-    if (!isCached) {
-      throw new UnauthorizedException();
-    }
-
-    await this.cache.del(phoneNumber);
-
     if (!isServiceTerms || !isPrivacyTerms) {
       throw new BadRequestException();
     }
@@ -114,14 +100,6 @@ export class UsersService {
   }
 
   async findEmail(phoneNumber: string) {
-    const isCached = await this.cache.get(phoneNumber);
-
-    if (!isCached) {
-      throw new UnauthorizedException();
-    }
-
-    await this.cache.del(phoneNumber);
-
     const user = await this.usersRepository.findUserByPhoneNumber(phoneNumber);
 
     if (!user || user.deletedAt) {
@@ -132,14 +110,6 @@ export class UsersService {
   }
 
   async updatePassword(phoneNumber: string, password: string) {
-    const isCached = await this.cache.get(phoneNumber);
-
-    if (!isCached) {
-      throw new UnauthorizedException();
-    }
-
-    await this.cache.del(phoneNumber);
-
     const user = await this.usersRepository.findUserByPhoneNumber(phoneNumber);
 
     if (!user || user.deletedAt) {

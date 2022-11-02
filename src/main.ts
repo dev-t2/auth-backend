@@ -13,7 +13,6 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
   app.useGlobalInterceptors(new TransformInterceptor());
-
   app.useGlobalPipes(
     new ValidationPipe({
       disableErrorMessages: process.env.NODE_ENV === 'production',
@@ -22,12 +21,10 @@ async function bootstrap() {
       transform: true,
     }),
   );
-
   app.useGlobalFilters(new HttpExceptionFilter());
 
   if (process.env.NODE_ENV === 'production') {
     app.enableCors({ origin: [] });
-
     app.use(helmet());
   } else {
     app.enableCors({ origin: true });
@@ -48,13 +45,10 @@ async function bootstrap() {
     .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }, 'AccessToken')
     .addBearerAuth({ type: 'http', scheme: 'bearer', bearerFormat: 'JWT' }, 'RefreshToken')
     .build();
-
   const document = SwaggerModule.createDocument(app, config);
-
   SwaggerModule.setup('docs', app, document);
 
   const prismaService = app.get(PrismaService);
-
   await prismaService.enableShutdownHooks(app);
 
   await app.listen(process.env.PORT);

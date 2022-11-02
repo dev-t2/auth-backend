@@ -14,9 +14,9 @@ import crypto from 'crypto';
 
 import { UsersRepository } from 'src/users/users.repository';
 
-interface IAuth {
+interface ICacheData {
   authNumber: string;
-  count: number;
+  numberOfRequest: number;
 }
 
 @Injectable()
@@ -29,9 +29,9 @@ export class AuthService {
   ) {}
 
   async createAuthMessage(phoneNumber: string) {
-    const cachedAuthData = await this.cache.get<IAuth>(phoneNumber);
+    const cachedData = await this.cache.get<ICacheData>(phoneNumber);
 
-    if (cachedAuthData && cachedAuthData.count >= 5) {
+    if (cachedData && cachedData.numberOfRequest >= 5) {
       throw new UnauthorizedException();
     }
 
@@ -62,7 +62,10 @@ export class AuthService {
     try {
       await this.httpService.axiosRef.post(url, data, { headers });
 
-      await this.cache.set(phoneNumber, { authNumber, count: (cachedAuthData?.count ?? 0) + 1 });
+      await this.cache.set(phoneNumber, {
+        authNumber,
+        count: (cachedData?.numberOfRequest ?? 0) + 1,
+      });
     } catch (e) {
       console.error(e);
 
@@ -71,13 +74,13 @@ export class AuthService {
   }
 
   async confirmAuth(phoneNumber: string, authNumber: string) {
-    const cachedAuthData = await this.cache.get<IAuth>(phoneNumber);
+    const cachedData = await this.cache.get<ICacheData>(phoneNumber);
 
-    if (authNumber !== cachedAuthData?.authNumber) {
+    if (authNumber !== cachedData?.authNumber) {
       throw new BadRequestException();
     }
 
-    await this.cache.set(phoneNumber, {});
+    await this.cache.del(phoneNumber);
   }
 
   async signIn(email: string, password: string) {
